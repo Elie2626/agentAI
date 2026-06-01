@@ -1,0 +1,44 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users: only the owner can read/write their own doc
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId
+                    && !("plan" in request.resource.data && request.resource.data.plan != resource.data.plan);
+      // plan changes are server-side only (via admin SDK)
+    }
+
+    // Chatbots: owner can CRUD, public can read config for widget
+    match /chatbots/{chatbotId} {
+      allow read: if request.auth != null && resource.data.owner_id == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.owner_id == request.auth.uid;
+      allow update: if request.auth != null && resource.data.owner_id == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.owner_id == request.auth.uid;
+    }
+
+    // Conversations: server-side only (via admin SDK from FastAPI)
+    match /conversations/{convId} {
+      allow read, write: if false;
+    }
+
+    // Usage tracking: server-side only
+    match /usage/{usageId} {
+      allow read: if request.auth != null && resource.data.user_id == request.auth.uid;
+      allow write: if false;
+    }
+
+    // Subscriptions: user can read their own, writes are server-side
+    match /subscriptions/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if false;
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
