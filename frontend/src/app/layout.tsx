@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
+import Script from "next/script";
 import "@/styles/globals.css";
 import { Toaster } from "react-hot-toast";
 import { I18nProvider } from "@/i18n";
@@ -95,6 +96,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             duration: 4000,
             style: { borderRadius: "0.75rem", fontSize: "0.875rem" },
           }}
+        />
+        <Script
+          src="https://www.botexpress.fr/widget.js"
+          data-chatbot-id="781ac196-e8e1-4086-adfa-ddfe42bd7916"
+          data-api-url="https://agentai-23tt.onrender.com"
+          strategy="afterInteractive"
         />
       </body>
     </html>
