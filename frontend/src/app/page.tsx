@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
 import { useT } from "@/i18n";
 import { Button } from "@/components/ui/button";
+import { AnimatedHeroBg } from "@/components/ui/animated-hero-bg";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
   Bot,
@@ -182,7 +183,7 @@ export default function LandingPage() {
 
       {/* ── Hero + Demo ── */}
       <section className="relative overflow-hidden px-4 pb-24 pt-20 sm:px-6 lg:px-8">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(45%_40%_at_50%_60%,hsl(var(--primary)/0.12),transparent)]" />
+        <AnimatedHeroBg />
         <div className="mx-auto max-w-7xl">
           <div className="grid items-center gap-12 lg:grid-cols-2">
             {/* Left — Text */}
