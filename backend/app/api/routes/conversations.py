@@ -5,6 +5,7 @@ import re
 import time
 from collections import defaultdict
 from datetime import datetime, timezone
+from urllib.parse import urlparse
 from fastapi import APIRouter, HTTPException, Request
 from app.core.firebase import get_db
 from app.core.config import PLAN_LIMITS
@@ -44,6 +45,20 @@ async def send_message(body: ChatMessage, request: Request):
         raise HTTPException(status_code=404, detail="Chatbot non trouvé")
 
     chatbot_data = chatbot_doc.to_dict()
+
+    allowed_domains = chatbot_data.get("allowed_domains", [])
+    if allowed_domains:
+        origin = request.headers.get("origin") or request.headers.get("referer", "")
+        try:
+            origin_host = urlparse(origin).hostname or ""
+        except Exception:
+            origin_host = ""
+        is_localhost = origin_host in ("localhost", "127.0.0.1") or origin_host.startswith("localhost:")
+        if not is_localhost and origin_host not in allowed_domains:
+            raise HTTPException(
+                status_code=403,
+                detail="Ce domaine n'est pas autorisé à utiliser ce chatbot.",
+            )
 
     if chatbot_data.get("status") != "active":
         raise HTTPException(status_code=403, detail="Chatbot désactivé")

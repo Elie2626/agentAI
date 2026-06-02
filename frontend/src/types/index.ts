@@ -26,6 +26,7 @@ export interface Chatbot {
   status: string;
   created_at: string;
   embed_code: string;
+  allowed_domains: string[];
 }
 
 export interface Usage {

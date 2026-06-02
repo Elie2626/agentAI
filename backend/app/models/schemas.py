@@ -37,6 +37,7 @@ class UpdateChatbotRequest(BaseModel):
     position: Optional[str] = None
     widget_size: Optional[str] = None
     avatar_url: Optional[str] = None
+    allowed_domains: Optional[list[str]] = None
 
 
 class SiteAnalysisResult(BaseModel):
@@ -81,6 +82,7 @@ class ChatbotResponse(BaseModel):
     status: str
     created_at: str
     embed_code: str
+    allowed_domains: list[str]
 
 
 class UserResponse(BaseModel):

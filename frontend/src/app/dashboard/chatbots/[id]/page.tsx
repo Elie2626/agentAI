@@ -18,8 +18,11 @@ import {
   HelpCircle,
   Lock,
   MessageSquare,
+  Plus,
   Save,
   Settings,
+  Shield,
+  Trash2,
   Users,
 } from "lucide-react";
 import toast from "react-hot-toast";
@@ -44,6 +47,9 @@ export default function ChatbotDetailPage() {
   const [widgetSize, setWidgetSize] = useState("medium");
   const [welcomeMessage, setWelcomeMessage] = useState("");
   const [placeholderText, setPlaceholderText] = useState("");
+  const [allowedDomains, setAllowedDomains] = useState<string[]>([]);
+  const [newDomain, setNewDomain] = useState("");
+  const [savingDomains, setSavingDomains] = useState(false);
 
   const canBrand = usage?.features.custom_branding ?? false;
 
@@ -63,6 +69,7 @@ export default function ChatbotDetailPage() {
         setWidgetSize(bot.widget_size || "medium");
         setWelcomeMessage(bot.welcome_message);
         setPlaceholderText(bot.placeholder_text);
+        setAllowedDomains(bot.allowed_domains ?? []);
       } catch {
         toast.error("Chatbot introuvable");
         router.push("/dashboard");
@@ -111,6 +118,26 @@ export default function ChatbotDetailPage() {
       toast.error("Erreur lors de la sauvegarde");
     } finally {
       setSaving(false);
+    }
+  }
+
+  function addDomain() {
+    const clean = newDomain.trim().toLowerCase().replace(/^https?:\/\//, "").replace(/\/$/, "");
+    if (!clean || allowedDomains.includes(clean)) return;
+    setAllowedDomains([...allowedDomains, clean]);
+    setNewDomain("");
+  }
+
+  async function handleSaveDomains() {
+    setSavingDomains(true);
+    try {
+      const updated = await api.updateChatbot(id, { allowed_domains: allowedDomains });
+      setChatbot(updated);
+      toast.success("Domaines autorisés enregistrés");
+    } catch {
+      toast.error("Erreur lors de la sauvegarde");
+    } finally {
+      setSavingDomains(false);
     }
   }
 
@@ -380,9 +407,57 @@ export default function ChatbotDetailPage() {
             </Card>
           </div>
 
-          <div className="lg:sticky lg:top-8">
-            <h3 className="mb-4 font-semibold">Aperçu en temps réel</h3>
-            <ChatbotPreview chatbot={previewBot} />
+          <div className="lg:sticky lg:top-8 space-y-6">
+            <div>
+              <h3 className="mb-4 font-semibold">Aperçu en temps réel</h3>
+              <ChatbotPreview chatbot={previewBot} />
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-4 w-4" />
+                  Domaines autorisés
+                </CardTitle>
+                <CardDescription>
+                  Limitez l&apos;utilisation du widget à vos domaines. Si aucun domaine n&apos;est ajouté, le widget fonctionne partout.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="exemple.com"
+                    value={newDomain}
+                    onChange={(e) => setNewDomain(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && addDomain()}
+                  />
+                  <Button variant="secondary" size="icon" onClick={addDomain} aria-label="Ajouter">
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                {allowedDomains.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">Aucun domaine restreint — widget accessible depuis n&apos;importe quel site.</p>
+                ) : (
+                  <ul className="space-y-2">
+                    {allowedDomains.map((d) => (
+                      <li key={d} className="flex items-center justify-between rounded-md border bg-muted/40 px-3 py-2 text-sm font-mono">
+                        {d}
+                        <button
+                          aria-label={`Supprimer ${d}`}
+                          onClick={() => setAllowedDomains(allowedDomains.filter((x) => x !== d))}
+                          className="ml-2 text-muted-foreground hover:text-destructive transition-colors"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <Button onClick={handleSaveDomains} disabled={savingDomains} size="sm" className="w-full">
+                  {savingDomains ? <Spinner className="h-4 w-4" /> : <><Save className="h-3.5 w-3.5" /> Enregistrer les domaines</>}
+                </Button>
+              </CardContent>
+            </Card>
           </div>
         </div>
       )}

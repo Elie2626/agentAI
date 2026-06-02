@@ -47,6 +47,7 @@ def _chatbot_to_response(doc_id: str, data: dict) -> ChatbotResponse:
         status=data.get("status", "active"),
         created_at=data.get("created_at", ""),
         embed_code=_build_embed_code(doc_id),
+        allowed_domains=data.get("allowed_domains", []),
     )
 
 
