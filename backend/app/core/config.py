@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     frontend_url: str = "http://localhost:3000"
     api_url: str = "http://localhost:8000"
     anthropic_api_key: str = ""
+    admin_secret: str = ""
 
 
 @lru_cache()
