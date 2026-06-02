@@ -8,7 +8,7 @@
 
   var chatbotId = script.getAttribute("data-chatbot-id");
   if (!chatbotId) {
-    console.error("[BotForge] data-chatbot-id manquant");
+    console.error("[botexpress] data-chatbot-id manquant");
     return;
   }
 
@@ -18,6 +18,12 @@
   var isOpen = false;
   var messages = [];
   var container = null;
+  var leadCaptured = false;
+  var sessionId = (localStorage.getItem("bf_session") || (function() {
+    var s = "s-" + Math.random().toString(36).substr(2, 12);
+    localStorage.setItem("bf_session", s);
+    return s;
+  }()));
 
   var SIZES = {
     small:  { width: "320px", height: "440px" },
@@ -44,11 +50,12 @@
   function init() {
     fetchConfig().then(function (cfg) {
       config = cfg;
+      leadCaptured = !!localStorage.getItem("bf_lead_" + chatbotId);
       messages = [{ role: "assistant", content: config.welcome_message || "Bonjour ! Comment puis-je vous aider ?" }];
       injectStyles();
       render();
     }).catch(function (err) {
-      console.error("[BotForge] Erreur init:", err);
+      console.error("[botexpress] Erreur init:", err);
     });
   }
 
@@ -135,21 +142,44 @@
     container.setAttribute("aria-label", "Chat " + (config.name || "assistant"));
 
     if (isOpen) {
-      container.innerHTML = buildChatHTML();
-      container.querySelector(".bf-close").addEventListener("click", function () {
-        isOpen = false;
-        render();
-      });
-      var form = container.querySelector(".bf-form");
-      var input = container.querySelector(".bf-input");
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-        var text = input.value.trim();
-        if (!text) return;
-        input.value = "";
-        sendMessage(text);
-      });
-      scrollToBottom();
+      // Show lead capture form if enabled and not yet captured
+      if (config.lead_capture_enabled && !leadCaptured) {
+        container.innerHTML = buildLeadFormHTML();
+        container.querySelector(".bf-close").addEventListener("click", function () {
+          isOpen = false;
+          render();
+        });
+        container.querySelector(".bf-lead-form").addEventListener("submit", function (e) {
+          e.preventDefault();
+          var data = {};
+          var fields = config.lead_capture_fields || ["name", "email"];
+          fields.forEach(function (f) {
+            var el = container.querySelector("[name=bf_" + f + "]");
+            if (el) data[f] = el.value.trim();
+          });
+          submitLead(data);
+        });
+        container.querySelector(".bf-lead-skip") && container.querySelector(".bf-lead-skip").addEventListener("click", function () {
+          leadCaptured = true;
+          render();
+        });
+      } else {
+        container.innerHTML = buildChatHTML();
+        container.querySelector(".bf-close").addEventListener("click", function () {
+          isOpen = false;
+          render();
+        });
+        var form = container.querySelector(".bf-form");
+        var input = container.querySelector(".bf-input");
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          var text = input.value.trim();
+          if (!text) return;
+          input.value = "";
+          sendMessage(text);
+        });
+        scrollToBottom();
+      }
     } else {
       container.innerHTML =
         '<button class="bf-toggle" aria-label="Ouvrir le chat">' +
@@ -162,6 +192,59 @@
     }
 
     document.body.appendChild(container);
+  }
+
+  function buildLeadFormHTML() {
+    var pc = sanitizeColor(config.primary_color);
+    var tc = (config.text_color && config.text_color !== "auto")
+      ? sanitizeColor(config.text_color)
+      : getContrastColor(pc);
+    var fields = config.lead_capture_fields || ["name", "email"];
+    var fieldLabels = { name: "Votre nom", email: "Votre email", phone: "Votre téléphone" };
+    var fieldTypes = { name: "text", email: "email", phone: "tel" };
+
+    var fieldsHTML = fields.map(function (f) {
+      return '<div style="margin-bottom:12px">' +
+        '<label style="display:block;font-size:13px;font-weight:500;margin-bottom:4px;color:#374151">' + (fieldLabels[f] || f) + '</label>' +
+        '<input name="bf_' + f + '" type="' + (fieldTypes[f] || "text") + '" placeholder="' + (fieldLabels[f] || f) + '" ' +
+        'style="width:100%;box-sizing:border-box;border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px;font-size:14px;outline:none;font-family:inherit;background:#f9fafb" required>' +
+        '</div>';
+    }).join("");
+
+    return '<div class="bf-chat">' +
+      '<div class="bf-header">' +
+      '<div class="bf-header-info"><div style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center">' +
+      '<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:' + tc + ';fill:none;stroke-width:2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg></div>' +
+      '<div><div class="bf-header-name">' + escapeHtml(config.name || "Assistant") + '</div><div class="bf-header-status">En ligne</div></div></div>' +
+      '<button class="bf-close" aria-label="Fermer"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>' +
+      '</div>' +
+      '<div style="flex:1;padding:20px;overflow-y:auto">' +
+      '<p style="font-size:15px;font-weight:600;color:#111827;margin:0 0 4px">Avant de commencer 👋</p>' +
+      '<p style="font-size:13px;color:#6b7280;margin:0 0 18px">Partagez quelques informations pour que nous puissions mieux vous aider.</p>' +
+      '<form class="bf-lead-form">' + fieldsHTML +
+      '<button type="submit" style="width:100%;background:' + pc + ';color:' + tc + ';border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit">Démarrer le chat</button>' +
+      '</form>' +
+      '<button class="bf-lead-skip" style="display:block;width:100%;margin-top:10px;background:none;border:none;font-size:12px;color:#9ca3af;cursor:pointer;font-family:inherit">Continuer sans renseigner</button>' +
+      '</div>' +
+      '<div class="bf-powered">Propulsé par <a href="https://www.botexpress.fr" target="_blank" rel="noopener">botexpress</a></div>' +
+      '</div>';
+  }
+
+  function submitLead(data) {
+    fetch(API_URL + "/api/v1/leads/capture", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chatbot_id: chatbotId,
+        session_id: sessionId,
+        name: data.name || "",
+        email: data.email || "",
+        phone: data.phone || "",
+      }),
+    }).catch(function () {});
+    localStorage.setItem("bf_lead_" + chatbotId, "1");
+    leadCaptured = true;
+    render();
   }
 
   function buildChatHTML() {
@@ -194,7 +277,7 @@
       '<input class="bf-input" type="text" placeholder="' + escapeHtml(config.placeholder_text || "Écrivez votre message...") + '" autocomplete="off">' +
       '<button class="bf-send" type="submit" aria-label="Envoyer"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>' +
       "</form>" +
-      '<div class="bf-powered">Propulsé par <a href="https://botforge.app" target="_blank" rel="noopener">BotForge</a></div>' +
+      '<div class="bf-powered">Propulsé par <a href="https://www.botexpress.fr" target="_blank" rel="noopener">botexpress</a></div>' +
       "</div>"
     );
   }

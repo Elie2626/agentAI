@@ -13,17 +13,45 @@ import {
   Globe,
   MessageSquare,
   BarChart3,
-  ExternalLink,
   Trash2,
   Copy,
   Settings,
+  CheckCircle2,
+  Circle,
+  X,
 } from "lucide-react";
 import toast from "react-hot-toast";
+
+const ONBOARDING_KEY = "be_onboarding_dismissed";
+
+function useOnboarding(chatbots: Chatbot[]) {
+  const [steps, setSteps] = useState({ created: false, copied: false, tested: false });
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setDismissed(!!localStorage.getItem(ONBOARDING_KEY));
+    const copied = !!localStorage.getItem("be_embed_copied");
+    const tested = !!localStorage.getItem("be_chatbot_tested");
+    setSteps({ created: chatbots.length > 0, copied, tested });
+  }, [chatbots.length]);
+
+  function dismiss() {
+    localStorage.setItem(ONBOARDING_KEY, "1");
+    setDismissed(true);
+  }
+
+  const allDone = steps.created && steps.copied && steps.tested;
+  const progress = [steps.created, steps.copied, steps.tested].filter(Boolean).length;
+
+  return { steps, dismissed, dismiss, allDone, progress };
+}
 
 export default function DashboardPage() {
   const [chatbots, setChatbots] = useState<Chatbot[]>([]);
   const [usage, setUsage] = useState<Usage | null>(null);
   const [loading, setLoading] = useState(true);
+  const onboarding = useOnboarding(chatbots);
 
   useEffect(() => {
     async function load() {
@@ -56,6 +84,7 @@ export default function DashboardPage() {
 
   function copyEmbedCode(code: string) {
     navigator.clipboard.writeText(code);
+    localStorage.setItem("be_embed_copied", "1");
     toast.success("Code copié dans le presse-papiers");
   }
 
@@ -84,6 +113,56 @@ export default function DashboardPage() {
           </Link>
         </Button>
       </div>
+
+      {/* Onboarding checklist */}
+      {!onboarding.dismissed && !onboarding.allDone && (
+        <Card className="border-primary/20 bg-primary/3">
+          <CardContent className="p-5">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <p className="font-semibold">Démarrez en 3 étapes</p>
+                <p className="text-sm text-muted-foreground">{onboarding.progress}/3 complétées</p>
+              </div>
+              <button
+                onClick={onboarding.dismiss}
+                aria-label="Fermer"
+                className="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            {/* Progress bar */}
+            <div className="mb-4 h-1.5 overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-primary transition-all duration-500"
+                style={{ width: `${(onboarding.progress / 3) * 100}%` }}
+              />
+            </div>
+            <div className="space-y-3">
+              {[
+                { done: onboarding.steps.created, label: "Créer votre premier chatbot", href: "/dashboard/chatbots/new" },
+                { done: onboarding.steps.copied, label: "Copier le code d'intégration", href: null },
+                { done: onboarding.steps.tested, label: "Tester votre chatbot en live", href: null },
+              ].map((step, i) => (
+                <div key={i} className="flex items-center gap-3 text-sm">
+                  {step.done
+                    ? <CheckCircle2 className="h-5 w-5 shrink-0 text-primary" />
+                    : <Circle className="h-5 w-5 shrink-0 text-muted-foreground/40" />}
+                  {step.href && !step.done ? (
+                    <Link href={step.href} className="font-medium text-primary hover:underline">
+                      {step.label}
+                    </Link>
+                  ) : (
+                    <span className={step.done ? "text-muted-foreground line-through" : "font-medium"}>
+                      {step.label}
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Upgrade banner for free users */}
       {usage && !usage.can_deploy && (

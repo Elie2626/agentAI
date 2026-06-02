@@ -58,10 +58,10 @@ export const api = {
     fetchApi(`/api/v1/chat/${chatbot_id}/reset`, { method: "POST" }),
 
   // Billing
-  createCheckout: (plan: string) =>
+  createCheckout: (plan: string, billing: "monthly" | "annual" = "monthly", referralCode?: string) =>
     fetchApi("/api/v1/billing/checkout", {
       method: "POST",
-      body: JSON.stringify({ plan }),
+      body: JSON.stringify({ plan, billing, referral_code: referralCode }),
     }),
 
   createPortal: () =>
@@ -77,4 +77,11 @@ export const api = {
     fetchApi("/api/v1/support", { method: "POST", body: JSON.stringify(data) }),
 
   listTickets: () => fetchApi("/api/v1/support"),
+
+  // Affiliate
+  getAffiliate: () => fetchApi("/api/v1/affiliate"),
+  getAffiliateStats: () => fetchApi("/api/v1/affiliate/stats"),
+
+  // Leads
+  getLeads: (chatbotId: string) => fetchApi(`/api/v1/leads/${chatbotId}`),
 };

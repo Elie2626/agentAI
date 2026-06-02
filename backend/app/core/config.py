@@ -20,6 +20,11 @@ class Settings(BaseSettings):
     stripe_price_starter: str = ""
     stripe_price_pro: str = ""
     stripe_price_business: str = ""
+    # Annual prices (create them in Stripe at 20% discount)
+    stripe_price_basic_yearly: str = ""
+    stripe_price_starter_yearly: str = ""
+    stripe_price_pro_yearly: str = ""
+    stripe_price_business_yearly: str = ""
     frontend_url: str = "http://localhost:3000"
     api_url: str = "http://localhost:8000"
     anthropic_api_key: str = ""

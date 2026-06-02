@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { api } from "@/lib/api";
 import { type Usage } from "@/types";
@@ -8,49 +8,56 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
-import { Check, CreditCard, ExternalLink } from "lucide-react";
+import { Check, CreditCard, ExternalLink, Clock, Gift } from "lucide-react";
 import toast from "react-hot-toast";
 
 const PLANS = [
   {
     id: "basic",
     name: "Basic",
-    price: 9.99,
+    monthlyPrice: 9.99,
     features: ["1 chatbot", "100 messages/mois", "5 pages analysées", "Widget standard"],
   },
   {
     id: "starter",
     name: "Starter",
-    price: 29,
+    monthlyPrice: 29,
     features: ["3 chatbots", "1 000 messages/mois", "50 pages analysées", "Branding personnalisé", "Support email"],
   },
   {
     id: "pro",
     name: "Pro",
-    price: 79,
+    monthlyPrice: 79,
     popular: true,
     features: ["10 chatbots", "10 000 messages/mois", "200 pages analysées", "Branding personnalisé", "Analytics", "Support prioritaire"],
   },
   {
     id: "business",
     name: "Business",
-    price: 199,
+    monthlyPrice: 199,
     features: ["50 chatbots", "100 000 messages/mois", "1 000 pages analysées", "Tout inclus", "Support prioritaire dédié"],
   },
 ];
 
-export default function BillingPage() {
+function getTrialDaysLeft(trialEndsAt: string): number {
+  const end = new Date(trialEndsAt).getTime();
+  const now = Date.now();
+  return Math.max(0, Math.ceil((end - now) / (1000 * 60 * 60 * 24)));
+}
+
+function BillingContent() {
   const searchParams = useSearchParams();
   const [usage, setUsage] = useState<Usage | null>(null);
   const [loading, setLoading] = useState(true);
   const [upgrading, setUpgrading] = useState<string | null>(null);
+  const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
 
   useEffect(() => {
     async function load() {
       try {
         if (searchParams.get("success") === "true") {
           await api.syncSubscription();
-          toast.success("Abonnement activé avec succès !");
+          toast.success("Abonnement activé ! Profitez de vos 7 jours gratuits.");
         }
         const data = await api.getUsage();
         setUsage(data);
@@ -64,10 +71,10 @@ export default function BillingPage() {
   }, [searchParams]);
 
   async function handleUpgrade(planId: string) {
-    if (planId === "free") return;
     setUpgrading(planId);
     try {
-      const { checkout_url } = await api.createCheckout(planId);
+      const referralCode = localStorage.getItem("be_ref_code") || undefined;
+      const { checkout_url } = await api.createCheckout(planId, billing, referralCode);
       window.location.href = checkout_url;
     } catch {
       toast.error("Erreur lors de la redirection vers Stripe");
@@ -93,6 +100,10 @@ export default function BillingPage() {
   }
 
   const currentPlan = usage?.plan || "free";
+  const isTrialing = usage?.subscription_status === "trialing";
+  const trialDaysLeft = isTrialing && usage?.trial_ends_at
+    ? getTrialDaysLeft(usage.trial_ends_at)
+    : 0;
 
   return (
     <div className="space-y-8">
@@ -102,6 +113,29 @@ export default function BillingPage() {
           Gérez votre plan et suivez votre consommation.
         </p>
       </div>
+
+      {/* Trial banner */}
+      {isTrialing && (
+        <Card className="border-amber-500/30 bg-amber-500/5">
+          <CardContent className="flex items-center gap-4 p-4">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/10">
+              <Clock className="h-5 w-5 text-amber-600" />
+            </div>
+            <div className="flex-1">
+              <p className="font-semibold text-amber-700 dark:text-amber-400">
+                Essai gratuit en cours — {trialDaysLeft} jour{trialDaysLeft > 1 ? "s" : ""} restant{trialDaysLeft > 1 ? "s" : ""}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Votre carte sera débitée automatiquement à la fin de l&apos;essai. Résiliez à tout moment depuis le portail.
+              </p>
+            </div>
+            <Button size="sm" variant="outline" onClick={handleManage}>
+              <CreditCard className="h-4 w-4" />
+              Gérer
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Current usage */}
       {usage && (
@@ -129,25 +163,19 @@ export default function BillingPage() {
               <div className="h-2.5 overflow-hidden rounded-full bg-muted">
                 <div
                   className="h-full rounded-full bg-primary transition-all"
-                  style={{
-                    width: `${Math.min(100, (usage.messages_used / usage.messages_limit) * 100)}%`,
-                  }}
+                  style={{ width: `${Math.min(100, (usage.messages_used / usage.messages_limit) * 100)}%` }}
                 />
               </div>
             </div>
             <div>
               <div className="mb-2 flex items-center justify-between text-sm">
                 <span>Chatbots</span>
-                <span className="font-medium">
-                  {usage.chatbots_used} / {usage.chatbots_limit}
-                </span>
+                <span className="font-medium">{usage.chatbots_used} / {usage.chatbots_limit}</span>
               </div>
               <div className="h-2.5 overflow-hidden rounded-full bg-muted">
                 <div
                   className="h-full rounded-full bg-primary transition-all"
-                  style={{
-                    width: `${Math.min(100, (usage.chatbots_used / usage.chatbots_limit) * 100)}%`,
-                  }}
+                  style={{ width: `${Math.min(100, (usage.chatbots_used / usage.chatbots_limit) * 100)}%` }}
                 />
               </div>
             </div>
@@ -155,10 +183,46 @@ export default function BillingPage() {
         </Card>
       )}
 
+      {/* Billing toggle */}
+      <div className="flex flex-col items-center gap-3">
+        <div className="flex items-center gap-1 rounded-xl border bg-muted/50 p-1">
+          <button
+            onClick={() => setBilling("monthly")}
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${
+              billing === "monthly"
+                ? "bg-background shadow text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Mensuel
+          </button>
+          <button
+            onClick={() => setBilling("annual")}
+            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
+              billing === "annual"
+                ? "bg-background shadow text-foreground"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Annuel
+            <span className="rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-xs font-semibold text-emerald-600">
+              -20%
+            </span>
+          </button>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Gift className="h-4 w-4 text-primary" />
+          <span>7 jours gratuits sur tous les plans — carte requise, sans engagement</span>
+        </div>
+      </div>
+
       {/* Plans */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         {PLANS.map((plan) => {
           const isCurrent = currentPlan === plan.id;
+          const price = billing === "annual"
+            ? Math.round(plan.monthlyPrice * 12 * 0.8 / 12 * 100) / 100
+            : plan.monthlyPrice;
           return (
             <Card
               key={plan.id}
@@ -178,11 +242,19 @@ export default function BillingPage() {
               <CardHeader>
                 <CardTitle className="text-lg">{plan.name}</CardTitle>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-bold">{plan.price}&euro;</span>
+                  <span className="text-3xl font-bold">{price.toLocaleString("fr-FR", { minimumFractionDigits: price % 1 ? 2 : 0 })}&euro;</span>
                   <span className="text-sm text-muted-foreground">/mois</span>
                 </div>
+                {billing === "annual" && (
+                  <p className="text-xs text-emerald-600">
+                    Facturé {Math.round(plan.monthlyPrice * 12 * 0.8)}&euro;/an
+                  </p>
+                )}
               </CardHeader>
               <CardContent className="space-y-4">
+                <div className="rounded-lg bg-primary/5 px-3 py-2 text-xs font-medium text-primary">
+                  7 jours gratuits
+                </div>
                 <ul className="space-y-2">
                   {plan.features.map((f) => (
                     <li key={f} className="flex items-start gap-2 text-sm">
@@ -193,21 +265,19 @@ export default function BillingPage() {
                 </ul>
                 {isCurrent ? (
                   <Button variant="outline" className="w-full" disabled>
-                    Plan actuel
+                    Plan actuel {isTrialing ? "(essai)" : ""}
                   </Button>
                 ) : (
                   <Button
                     className="w-full"
                     variant={plan.popular ? "default" : "outline"}
                     onClick={() => handleUpgrade(plan.id)}
-                    disabled={upgrading === plan.id || plan.id === "free"}
+                    disabled={!!upgrading}
                   >
                     {upgrading === plan.id ? (
                       <Spinner className="h-4 w-4" />
-                    ) : plan.id === "free" ? (
-                      "Plan gratuit"
                     ) : (
-                      "Passer à ce plan"
+                      "Commencer l'essai gratuit"
                     )}
                   </Button>
                 )}
@@ -216,6 +286,18 @@ export default function BillingPage() {
           );
         })}
       </div>
+
+      <p className="text-center text-xs text-muted-foreground">
+        Paiement sécurisé par Stripe · Résiliation possible à tout moment · Sans engagement
+      </p>
     </div>
+  );
+}
+
+export default function BillingPage() {
+  return (
+    <Suspense>
+      <BillingContent />
+    </Suspense>
   );
 }

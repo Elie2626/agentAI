@@ -38,6 +38,8 @@ class UpdateChatbotRequest(BaseModel):
     widget_size: Optional[str] = None
     avatar_url: Optional[str] = None
     allowed_domains: Optional[list[str]] = None
+    lead_capture_enabled: Optional[bool] = None
+    lead_capture_fields: Optional[list[str]] = None  # ["name","email","phone"]
 
 
 class SiteAnalysisResult(BaseModel):
@@ -59,8 +61,14 @@ class ChatMessage(BaseModel):
     chatbot_id: str
 
 
+class BillingInterval(str, Enum):
+    MONTHLY = "monthly"
+    ANNUAL = "annual"
+
 class CreateCheckoutRequest(BaseModel):
     plan: PlanType
+    billing: BillingInterval = BillingInterval.MONTHLY
+    referral_code: Optional[str] = None
 
 
 class ChatbotResponse(BaseModel):

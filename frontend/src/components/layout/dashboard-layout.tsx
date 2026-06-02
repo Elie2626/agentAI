@@ -18,6 +18,7 @@ import {
   LogOut,
   Menu,
   X,
+  Users,
 } from "lucide-react";
 import { useState } from "react";
 import { useT } from "@/i18n";
@@ -27,6 +28,7 @@ const NAV_ITEMS = [
   { href: "/dashboard", labelKey: "nav_my_chatbots", icon: LayoutDashboard },
   { href: "/dashboard/chatbots/new", labelKey: "nav_new_chatbot", icon: MessageSquarePlus },
   { href: "/dashboard/billing", labelKey: "nav_billing", icon: CreditCard },
+  { href: "/dashboard/affiliate", labelKey: "nav_affiliate", icon: Users },
   { href: "/dashboard/support", labelKey: "nav_support", icon: LifeBuoy },
   { href: "/dashboard/settings", labelKey: "nav_settings", icon: Settings },
 ];

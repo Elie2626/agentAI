@@ -133,6 +133,7 @@ const en: Record<string, string> = {
   nav_my_chatbots: "My chatbots",
   nav_new_chatbot: "New chatbot",
   nav_billing: "Billing",
+  nav_affiliate: "Affiliate",
   nav_support: "Support",
   nav_settings: "Settings",
   nav_logout: "Sign out",

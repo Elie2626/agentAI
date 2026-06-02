@@ -160,6 +160,7 @@ const fr = {
   nav_my_chatbots: "Mes chatbots",
   nav_new_chatbot: "Nouveau chatbot",
   nav_billing: "Abonnement",
+  nav_affiliate: "Affiliation",
   nav_support: "Support",
   nav_settings: "Paramètres",
   nav_logout: "Déconnexion",

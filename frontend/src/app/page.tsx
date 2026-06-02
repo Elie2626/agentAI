@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
 import { useT } from "@/i18n";
@@ -46,10 +46,10 @@ const FEATURES = [
 ];
 
 const PLANS = [
-  { name: "Basic", price: "9,99", features: ["1 chatbot", "100 messages/mois", "5 pages analysées", "Widget standard"], cta: "Commencer avec Basic", highlighted: false },
-  { name: "Starter", price: "29", features: ["3 chatbots", "1 000 messages/mois", "50 pages analysées", "Branding personnalisé", "Support email"], cta: "Essayer Starter", highlighted: false },
-  { name: "Pro", price: "79", features: ["10 chatbots", "10 000 messages/mois", "200 pages analysées", "Branding personnalisé", "Analytics avancés", "Support prioritaire"], cta: "Passer à Pro", highlighted: true },
-  { name: "Business", price: "199", features: ["50 chatbots", "100 000 messages/mois", "1 000 pages analysées", "Tout inclus", "Support dédié", "API access"], cta: "Contacter les ventes", highlighted: false },
+  { name: "Basic", monthlyPrice: 9.99, features: ["1 chatbot", "100 messages/mois", "5 pages analysées", "Widget standard"], cta: "Essayer gratuitement", highlighted: false },
+  { name: "Starter", monthlyPrice: 29, features: ["3 chatbots", "1 000 messages/mois", "50 pages analysées", "Branding personnalisé", "Support email"], cta: "Essayer gratuitement", highlighted: false },
+  { name: "Pro", monthlyPrice: 79, features: ["10 chatbots", "10 000 messages/mois", "200 pages analysées", "Branding personnalisé", "Analytics avancés", "Support prioritaire"], cta: "Essayer gratuitement", highlighted: true },
+  { name: "Business", monthlyPrice: 199, features: ["50 chatbots", "100 000 messages/mois", "1 000 pages analysées", "Tout inclus", "Support dédié", "API access"], cta: "Essayer gratuitement", highlighted: false },
 ];
 
 const TESTIMONIALS = [
@@ -112,6 +112,7 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 export default function LandingPage() {
   const { isAuthenticated } = useAuth();
   const { t } = useT();
+  const [billingCycle, setBillingCycle] = React.useState<"monthly" | "annual">("monthly");
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -485,31 +486,65 @@ export default function LandingPage() {
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t("pricing_title")}</h2>
             <p className="mx-auto mt-4 max-w-xl text-lg text-muted-foreground">{t("pricing_subtitle")}</p>
           </Reveal>
-          <div className="mt-10 grid gap-6 sm:mt-16 sm:grid-cols-2 lg:grid-cols-4">
-            {PLANS.map((plan) => (
-              <Reveal key={plan.name}>
-                <div className={`relative h-full rounded-2xl border p-6 ${plan.highlighted ? "border-primary bg-card shadow-lg ring-1 ring-primary" : "bg-card"}`}>
-                  {plan.highlighted && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-0.5 text-xs font-medium text-primary-foreground">Populaire</div>
-                  )}
-                  <h3 className="text-lg font-semibold">{plan.name}</h3>
-                  <div className="mt-4 flex items-baseline gap-1">
-                    <span className="text-4xl font-bold">{plan.price}&euro;</span>
-                    <span className="text-muted-foreground">/mois</span>
+          {/* Billing toggle */}
+          <div className="mt-8 flex flex-col items-center gap-3">
+            <div className="flex items-center gap-1 rounded-xl border bg-background p-1 shadow-sm">
+              <button
+                onClick={() => setBillingCycle("monthly")}
+                className={`rounded-lg px-5 py-2 text-sm font-medium transition-all ${billingCycle === "monthly" ? "bg-primary text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                Mensuel
+              </button>
+              <button
+                onClick={() => setBillingCycle("annual")}
+                className={`flex items-center gap-2 rounded-lg px-5 py-2 text-sm font-medium transition-all ${billingCycle === "annual" ? "bg-primary text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                Annuel
+                <span className={`rounded-full px-1.5 py-0.5 text-xs font-bold ${billingCycle === "annual" ? "bg-white/20 text-white" : "bg-emerald-500/15 text-emerald-600"}`}>-20%</span>
+              </button>
+            </div>
+            <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+              <Zap className="h-3.5 w-3.5 text-primary" />
+              7 jours gratuits · carte requise · résiliation à tout moment
+            </p>
+          </div>
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {PLANS.map((plan) => {
+              const price = billingCycle === "annual"
+                ? Math.round(plan.monthlyPrice * 12 * 0.8 / 12 * 100) / 100
+                : plan.monthlyPrice;
+              const displayPrice = price % 1 === 0 ? price.toString() : price.toFixed(2).replace(".", ",");
+              return (
+                <Reveal key={plan.name}>
+                  <div className={`relative flex h-full flex-col rounded-2xl border p-6 ${plan.highlighted ? "border-primary bg-card shadow-lg ring-1 ring-primary" : "bg-card"}`}>
+                    {plan.highlighted && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-0.5 text-xs font-medium text-primary-foreground">Populaire</div>
+                    )}
+                    <h3 className="text-lg font-semibold">{plan.name}</h3>
+                    <div className="mt-3 flex items-baseline gap-1">
+                      <span className="text-4xl font-bold">{displayPrice}&euro;</span>
+                      <span className="text-muted-foreground">/mois</span>
+                    </div>
+                    {billingCycle === "annual" && (
+                      <p className="mt-0.5 text-xs text-emerald-600">Facturé {Math.round(plan.monthlyPrice * 12 * 0.8)}&euro;/an</p>
+                    )}
+                    <div className="mt-3 rounded-lg bg-primary/8 px-3 py-1.5 text-center text-xs font-medium text-primary">
+                      7 jours gratuits
+                    </div>
+                    <ul className="mt-5 flex-1 space-y-3">
+                      {plan.features.map((f) => (
+                        <li key={f} className="flex items-start gap-2 text-sm">
+                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />{f}
+                        </li>
+                      ))}
+                    </ul>
+                    <Button className="mt-8 w-full" variant={plan.highlighted ? "default" : "outline"} asChild>
+                      <Link href="/auth/register">{plan.cta}</Link>
+                    </Button>
                   </div>
-                  <ul className="mt-6 space-y-3">
-                    {plan.features.map((f) => (
-                      <li key={f} className="flex items-start gap-2 text-sm">
-                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />{f}
-                      </li>
-                    ))}
-                  </ul>
-                  <Button className="mt-8 w-full" variant={plan.highlighted ? "default" : "outline"} asChild>
-                    <Link href="/auth/register">{plan.cta}</Link>
-                  </Button>
-                </div>
-              </Reveal>
-            ))}
+                </Reveal>
+              );
+            })}
           </div>
         </div>
       </section>

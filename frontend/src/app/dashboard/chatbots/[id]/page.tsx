@@ -51,6 +51,10 @@ export default function ChatbotDetailPage() {
   const [allowedDomains, setAllowedDomains] = useState<string[]>([]);
   const [newDomain, setNewDomain] = useState("");
   const [savingDomains, setSavingDomains] = useState(false);
+  const [leadCaptureEnabled, setLeadCaptureEnabled] = useState(false);
+  const [leadCaptureFields, setLeadCaptureFields] = useState<string[]>(["name", "email"]);
+  const [leads, setLeads] = useState<{ id: string; name: string; email: string; phone: string; created_at: string }[]>([]);
+  const [savingLeads, setSavingLeads] = useState(false);
 
   const canBrand = usage?.features.custom_branding ?? false;
 
@@ -71,6 +75,13 @@ export default function ChatbotDetailPage() {
         setWelcomeMessage(bot.welcome_message);
         setPlaceholderText(bot.placeholder_text);
         setAllowedDomains(bot.allowed_domains ?? []);
+        setLeadCaptureEnabled(bot.lead_capture_enabled ?? false);
+        setLeadCaptureFields(bot.lead_capture_fields ?? ["name", "email"]);
+        // Load leads (ignore error if none yet)
+        try {
+          const leadsData = await api.getLeads(id);
+          setLeads(leadsData.leads ?? []);
+        } catch { /* no leads yet */ }
       } catch {
         toast.error("Chatbot introuvable");
         router.push("/dashboard");
@@ -140,6 +151,28 @@ export default function ChatbotDetailPage() {
     } finally {
       setSavingDomains(false);
     }
+  }
+
+  async function handleSaveLeadCapture() {
+    setSavingLeads(true);
+    try {
+      const updated = await api.updateChatbot(id, {
+        lead_capture_enabled: leadCaptureEnabled,
+        lead_capture_fields: leadCaptureFields,
+      });
+      setChatbot(updated);
+      toast.success("Capture de leads enregistrée");
+    } catch {
+      toast.error("Erreur lors de la sauvegarde");
+    } finally {
+      setSavingLeads(false);
+    }
+  }
+
+  function toggleLeadField(field: string) {
+    setLeadCaptureFields((prev) =>
+      prev.includes(field) ? prev.filter((f) => f !== field) : [...prev, field]
+    );
   }
 
   if (loading || !chatbot) {
@@ -544,6 +577,71 @@ export default function ChatbotDetailPage() {
                 <Button onClick={handleSaveDomains} disabled={savingDomains} size="sm" className="w-full">
                   {savingDomains ? <Spinner className="h-4 w-4" /> : <><Save className="h-3.5 w-3.5" /> Enregistrer les domaines</>}
                 </Button>
+              </CardContent>
+            </Card>
+
+            {/* Lead capture */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  Capture de leads
+                </CardTitle>
+                <CardDescription>
+                  Collectez nom, email et téléphone avant que le visiteur commence à chatter.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <label className="flex cursor-pointer items-center justify-between gap-3">
+                  <span className="text-sm font-medium">Activer la capture de leads</span>
+                  <button
+                    role="switch"
+                    aria-checked={leadCaptureEnabled}
+                    onClick={() => setLeadCaptureEnabled(!leadCaptureEnabled)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${leadCaptureEnabled ? "bg-primary" : "bg-muted-foreground/30"}`}
+                  >
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${leadCaptureEnabled ? "translate-x-6" : "translate-x-1"}`} />
+                  </button>
+                </label>
+                {leadCaptureEnabled && (
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium text-muted-foreground">Champs à collecter :</p>
+                    {[
+                      { key: "name", label: "Nom" },
+                      { key: "email", label: "Email" },
+                      { key: "phone", label: "Téléphone" },
+                    ].map(({ key, label }) => (
+                      <label key={key} className="flex cursor-pointer items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={leadCaptureFields.includes(key)}
+                          onChange={() => toggleLeadField(key)}
+                          className="h-4 w-4 rounded border-border accent-primary"
+                        />
+                        {label}
+                      </label>
+                    ))}
+                  </div>
+                )}
+                <Button onClick={handleSaveLeadCapture} disabled={savingLeads} size="sm" className="w-full">
+                  {savingLeads ? <Spinner className="h-4 w-4" /> : <><Save className="h-3.5 w-3.5" /> Enregistrer</>}
+                </Button>
+
+                {/* Leads list */}
+                {leads.length > 0 && (
+                  <div className="mt-2">
+                    <p className="mb-2 text-xs font-medium text-muted-foreground">{leads.length} lead{leads.length > 1 ? "s" : ""} collecté{leads.length > 1 ? "s" : ""}</p>
+                    <div className="max-h-48 overflow-y-auto rounded-lg border">
+                      {leads.map((lead) => (
+                        <div key={lead.id} className="border-b px-3 py-2 last:border-0">
+                          <p className="text-sm font-medium">{lead.name || lead.email || "Anonyme"}</p>
+                          <p className="text-xs text-muted-foreground">{lead.email}{lead.phone ? ` · ${lead.phone}` : ""}</p>
+                          <p className="text-xs text-muted-foreground/60">{new Date(lead.created_at).toLocaleDateString("fr-FR")}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

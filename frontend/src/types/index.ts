@@ -27,10 +27,14 @@ export interface Chatbot {
   created_at: string;
   embed_code: string;
   allowed_domains: string[];
+  lead_capture_enabled?: boolean;
+  lead_capture_fields?: string[];
 }
 
 export interface Usage {
   plan: string;
+  subscription_status?: string;
+  trial_ends_at?: string | null;
   messages_used: number;
   messages_limit: number;
   chatbots_used: number;
@@ -44,6 +48,39 @@ export interface Usage {
     email_support: boolean;
     priority_support: boolean;
   };
+}
+
+export interface AffiliateInfo {
+  referral_code: string;
+  referral_link: string;
+}
+
+export interface AffiliateStats {
+  total_referrals: number;
+  total_earned: number;
+  pending: number;
+  paid: number;
+  referrals: {
+    id: string;
+    plan: string;
+    commission: number;
+    status: string;
+    created_at: string;
+  }[];
+}
+
+export interface Lead {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  session_id: string;
+  created_at: string;
+}
+
+export interface LeadsData {
+  total: number;
+  leads: Lead[];
 }
 
 export interface ChatbotAnalytics {
