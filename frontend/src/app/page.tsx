@@ -182,7 +182,7 @@ export default function LandingPage() {
             ) : (
               <>
                 <Button variant="ghost" asChild className="hidden sm:inline-flex"><Link href="/auth/login">{t("nav_login")}</Link></Button>
-                <Button asChild size="sm"><Link href="/auth/register">{t("nav_register")} <ArrowRight className="h-4 w-4" /></Link></Button>
+                <Button asChild size="sm"><Link href="/auth/register"><span className="sm:hidden">S'inscrire</span><span className="hidden sm:inline">{t("nav_register")}</span> <ArrowRight className="h-4 w-4" /></Link></Button>
               </>
             )}
           </div>
