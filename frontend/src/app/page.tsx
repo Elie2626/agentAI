@@ -175,14 +175,14 @@ export default function LandingPage() {
             <a href="#pricing" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav_pricing")}</a>
             <a href="#faq" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav_faq")}</a>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <ThemeToggle />
             {isAuthenticated ? (
-              <Button asChild><Link href="/dashboard">{t("nav_dashboard")} <ArrowRight className="h-4 w-4" /></Link></Button>
+              <Button asChild size="sm"><Link href="/dashboard">{t("nav_dashboard")} <ArrowRight className="h-4 w-4" /></Link></Button>
             ) : (
               <>
-                <Button variant="ghost" asChild><Link href="/auth/login">{t("nav_login")}</Link></Button>
-                <Button asChild><Link href="/auth/register">{t("nav_register")} <ArrowRight className="h-4 w-4" /></Link></Button>
+                <Button variant="ghost" asChild className="hidden sm:inline-flex"><Link href="/auth/login">{t("nav_login")}</Link></Button>
+                <Button asChild size="sm"><Link href="/auth/register">{t("nav_register")} <ArrowRight className="h-4 w-4" /></Link></Button>
               </>
             )}
           </div>
@@ -190,7 +190,7 @@ export default function LandingPage() {
       </nav>
 
       {/* ── Hero + Demo ── */}
-      <section className="relative overflow-hidden px-4 pb-24 pt-20 sm:px-6 lg:px-8">
+      <section className="relative overflow-hidden px-4 pb-16 pt-12 sm:pb-24 sm:pt-20 sm:px-6 lg:px-8">
         <AnimatedHeroBg />
         <div className="mx-auto max-w-7xl">
           <div className="grid items-center gap-12 lg:grid-cols-2">
@@ -200,14 +200,14 @@ export default function LandingPage() {
                 <Zap className="h-3.5 w-3.5 text-primary" />
                 {t("hero_badge")}
               </div>
-              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+              <h1 className="text-3xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
                 {t("hero_title1")}
                 <span className="block text-primary">{t("hero_title2")}</span>
               </h1>
               <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground lg:mx-0">
                 {t("hero_subtitle")}
               </p>
-              <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row lg:justify-start">
+              <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:gap-4 lg:justify-start">
                 <Button size="lg" asChild>
                   <Link href="/auth/register">{t("hero_cta1")} <ArrowRight className="h-4 w-4" /></Link>
                 </Button>
@@ -287,13 +287,13 @@ export default function LandingPage() {
       </section>
 
       {/* ── Features ── */}
-      <section id="features" className="px-4 py-24 sm:px-6 lg:px-8">
+      <section id="features" className="px-4 py-16 sm:py-24 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <Reveal className="mx-auto max-w-2xl text-center">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t("features_title")}</h2>
             <p className="mt-4 text-lg text-muted-foreground">{t("features_subtitle")}</p>
           </Reveal>
-          <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-10 grid gap-4 sm:mt-16 sm:gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {FEATURES.map((f) => (
               <Reveal key={f.title}>
                 <div className="group h-full rounded-2xl border bg-card p-6 transition-shadow hover:shadow-md">
@@ -310,12 +310,12 @@ export default function LandingPage() {
       </section>
 
       {/* ── How it works ── */}
-      <section className="border-t bg-muted/30 px-4 py-24 sm:px-6 lg:px-8">
+      <section className="border-t bg-muted/30 px-4 py-16 sm:py-24 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <Reveal className="text-center">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t("how_title")}</h2>
           </Reveal>
-          <div className="mt-16 grid gap-12 md:grid-cols-3">
+          <div className="mt-12 grid gap-8 sm:gap-12 md:grid-cols-3">
             {[
               { step: "1", title: "Entrez votre URL", desc: "Collez l'adresse de votre site. Notre système explore toutes les pages et extrait le contenu, les couleurs et le logo." },
               { step: "2", title: "Personnalisez", desc: "Choisissez le type de chatbot, ajustez le style. Le widget adopte automatiquement l'identité de votre marque." },
@@ -333,13 +333,13 @@ export default function LandingPage() {
 
       {/* ── Testimonials ── */}
       <Reveal>
-        <section className="px-4 py-24 sm:px-6 lg:px-8">
+        <section className="px-4 py-16 sm:py-24 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl">
             <div className="text-center">
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t("testimonials_title")}</h2>
               <p className="mt-4 text-lg text-muted-foreground">{t("testimonials_subtitle")}</p>
             </div>
-            <div className="mt-16 grid gap-6 md:grid-cols-3">
+            <div className="mt-10 grid gap-4 sm:mt-16 sm:grid-cols-2 md:grid-cols-3">
               {TESTIMONIALS.map((t) => (
                 <div key={t.name} className="rounded-2xl border bg-card p-6">
                   <div className="mb-3 flex gap-0.5">
@@ -365,13 +365,13 @@ export default function LandingPage() {
       </Reveal>
 
       {/* ── Pricing ── */}
-      <section id="pricing" className="border-t bg-muted/30 px-4 py-24 sm:px-6 lg:px-8">
+      <section id="pricing" className="border-t bg-muted/30 px-4 py-16 sm:py-24 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <Reveal className="text-center">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t("pricing_title")}</h2>
             <p className="mx-auto mt-4 max-w-xl text-lg text-muted-foreground">{t("pricing_subtitle")}</p>
           </Reveal>
-          <div className="mt-16 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-10 grid gap-6 sm:mt-16 sm:grid-cols-2 lg:grid-cols-4">
             {PLANS.map((plan) => (
               <Reveal key={plan.name}>
                 <div className={`relative h-full rounded-2xl border p-6 ${plan.highlighted ? "border-primary bg-card shadow-lg ring-1 ring-primary" : "bg-card"}`}>
@@ -402,13 +402,13 @@ export default function LandingPage() {
 
       {/* ── FAQ ── */}
       <Reveal>
-        <section id="faq" className="px-4 py-24 sm:px-6 lg:px-8">
+        <section id="faq" className="px-4 py-16 sm:py-24 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-3xl">
             <div className="text-center">
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t("faq_title")}</h2>
               <p className="mt-4 text-lg text-muted-foreground">{t("faq_subtitle")}</p>
             </div>
-            <div className="mt-12 space-y-3">
+            <div className="mt-8 space-y-3 sm:mt-12">
               {FAQ_KEYS.map((key) => (
                 <FaqItem key={key} q={t(`${key}_q`)} a={t(`${key}_a`)} />
               ))}
@@ -419,13 +419,13 @@ export default function LandingPage() {
 
       {/* ── Niches ── */}
       <Reveal>
-        <section className="border-t px-4 py-24 sm:px-6 lg:px-8">
+        <section className="border-t px-4 py-16 sm:py-24 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl">
             <div className="mx-auto max-w-2xl text-center">
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t("niches_title")}</h2>
               <p className="mt-4 text-lg text-muted-foreground">{t("niches_subtitle")}</p>
             </div>
-            <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-10 grid gap-4 sm:mt-12 sm:grid-cols-2 lg:grid-cols-3">
               {[
                 { icon: UtensilsCrossed, key: "restaurant", href: "/chatbot-restaurant", color: "text-orange-500", bg: "bg-orange-500/10" },
                 { icon: Home,            key: "immo",       href: "/chatbot-immobilier", color: "text-emerald-500", bg: "bg-emerald-500/10" },
@@ -452,12 +452,12 @@ export default function LandingPage() {
 
       {/* ── Objections ── */}
       <Reveal>
-        <section className="border-t bg-muted/30 px-4 py-24 sm:px-6 lg:px-8">
+        <section className="border-t bg-muted/30 px-4 py-16 sm:py-24 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl">
             <div className="mx-auto max-w-2xl text-center">
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t("obj_title")}</h2>
             </div>
-            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-8 grid gap-4 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
               {(["1","2","3","4"] as const).map((n) => (
                 <div key={n} className="rounded-2xl border bg-card p-6">
                   <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
@@ -476,18 +476,20 @@ export default function LandingPage() {
       </Reveal>
 
       {/* ── CTA final ── */}
-      <section className="border-t bg-primary/5 px-4 py-20 sm:px-6 lg:px-8">
+      <section className="border-t bg-primary/5 px-4 py-16 sm:py-20 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t("cta_title")}</h2>
-          <p className="mt-4 text-lg text-muted-foreground">{t("cta_subtitle")}</p>
+          <p className="mt-4 text-base text-muted-foreground sm:text-lg">{t("cta_subtitle")}</p>
           <Button size="lg" asChild className="mt-8">
             <Link href="/auth/register">{t("cta_button")} <ArrowRight className="h-4 w-4" /></Link>
           </Button>
-          <p className="mt-4 text-sm text-muted-foreground flex items-center justify-center gap-2">
-            <CheckCircle2 className="h-4 w-4 text-emerald-500" /> Aucune carte bancaire &nbsp;·&nbsp;
-            <CheckCircle2 className="h-4 w-4 text-emerald-500" /> Sans code &nbsp;·&nbsp;
-            <CheckCircle2 className="h-4 w-4 text-emerald-500" /> Prêt en 30 secondes
-          </p>
+          <div className="mt-4 flex flex-col items-center gap-2 text-sm text-muted-foreground sm:flex-row sm:justify-center sm:gap-0">
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-emerald-500" /> Aucune carte bancaire</span>
+            <span className="hidden sm:mx-3 sm:inline">·</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-emerald-500" /> Sans code</span>
+            <span className="hidden sm:mx-3 sm:inline">·</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-emerald-500" /> Prêt en 30 secondes</span>
+          </div>
         </div>
       </section>
 
