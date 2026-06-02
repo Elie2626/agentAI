@@ -655,6 +655,7 @@ export default function LandingPage() {
             <div className="flex items-center gap-6">
               <Link href="/legal" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("footer_legal")}</Link>
               <Link href="/privacy" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("footer_privacy")}</Link>
+              <Link href="/affiliation" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Affiliation</Link>
             </div>
           </div>
           <div className="mt-6 border-t pt-6 text-center">
