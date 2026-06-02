@@ -57,15 +57,15 @@ async def _send_ticket_email(ticket: dict) -> None:
         <tr><td style="padding:6px 0;color:#64748b">Sujet</td><td style="padding:6px 0;font-weight:600">{ticket['subject']}</td></tr>
       </table>
       <div style="background:#f8fafc;border-radius:8px;padding:16px;white-space:pre-wrap;line-height:1.6">{ticket['message']}</div>
-      <p style="margin-top:20px;color:#94a3b8;font-size:13px">BotForge Admin Panel → http://localhost:4000</p>
+      <p style="margin-top:20px;color:#94a3b8;font-size:13px">botexpress Admin Panel → http://localhost:4000</p>
     </div>
     """
 
     def _send():
         resend.Emails.send({
-            "from": "BotForge Support <onboarding@resend.dev>",
+            "from": "botexpress Support <onboarding@resend.dev>",
             "to": [settings.support_email],
-            "subject": f"[BotForge Support] {ticket['subject']}",
+            "subject": f"[botexpress Support] {ticket['subject']}",
             "html": html,
         })
 

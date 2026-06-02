@@ -47,7 +47,7 @@ const en: Record<string, string> = {
   how_step3_desc: "Copy a single line of code and paste it into your site. Your chatbot is live instantly.",
 
   // Testimonials
-  testimonials_title: "They use BotForge for their customer service",
+  testimonials_title: "They use botexpress for their customer service",
   testimonials_subtitle: "Businesses of all sizes trust our AI chatbot to automate their support.",
 
   // Pricing
@@ -62,7 +62,7 @@ const en: Record<string, string> = {
   faq_title: "Frequently asked questions",
   faq_subtitle: "Everything you need to know before getting started.",
   faq1_q: "Does it work with WordPress / Shopify / Wix?",
-  faq1_a: "Yes, BotForge works with any website. Simply paste one line of HTML code into your site, regardless of the CMS you use.",
+  faq1_a: "Yes, botexpress works with any website. Simply paste one line of HTML code into your site, regardless of the CMS you use.",
   faq2_q: "Do I need to know how to code?",
   faq2_a: "No, no technical skills are required. Enter your website URL, our AI does the rest. Integration is a simple copy and paste.",
   faq3_q: "How long does it take to create a chatbot?",
@@ -86,7 +86,7 @@ const en: Record<string, string> = {
 
   // Auth
   auth_login_title: "Sign in",
-  auth_login_subtitle: "Sign in to your BotForge account",
+  auth_login_subtitle: "Sign in to your botexpress account",
   auth_google: "Continue with Google",
   auth_or: "or",
   auth_email: "Email",
@@ -98,7 +98,7 @@ const en: Record<string, string> = {
   auth_no_account: "Don't have an account?",
   auth_create_account: "Create account",
   auth_register_title: "Create account",
-  auth_register_subtitle: "Create your free BotForge account",
+  auth_register_subtitle: "Create your free botexpress account",
   auth_register_btn: "Create my account",
   auth_has_account: "Already have an account?",
   auth_login_link: "Sign in",

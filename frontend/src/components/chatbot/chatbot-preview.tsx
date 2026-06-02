@@ -162,7 +162,7 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
               </button>
             </form>
             <p className="mt-2 text-center text-[10px] text-muted-foreground">
-              Propulsé par BotForge
+              Propulsé par botexpress
             </p>
           </div>
         </div>

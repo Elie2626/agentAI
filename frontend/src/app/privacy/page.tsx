@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Politique de confidentialité",
-  description: "Politique de confidentialité et protection des données personnelles de BotForge. Conformité RGPD.",
-  alternates: { canonical: "https://botforge.app/privacy" },
+  description: "Politique de confidentialité et protection des données personnelles de botexpress. Conformité RGPD.",
+  alternates: { canonical: "https://www.botexpress.fr/privacy" },
 };
 
 export default function PrivacyPage() {
@@ -18,7 +18,7 @@ export default function PrivacyPage() {
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
               <Bot className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold">BotForge</span>
+            <span className="text-xl font-bold">botexpress</span>
           </Link>
         </div>
       </nav>
@@ -41,7 +41,7 @@ export default function PrivacyPage() {
               Le responsable du traitement des données personnelles est :<br />
               <strong className="text-foreground">[Nom de la société]</strong><br />
               Adresse : [Adresse complète]<br />
-              Contact : privacy@botforge.app
+              Contact : privacy@botexpress.fr
             </p>
           </section>
 
@@ -61,7 +61,7 @@ export default function PrivacyPage() {
             <h2 className="mb-3 text-lg font-semibold text-foreground">3. Finalités du traitement</h2>
             <p>Les données sont collectées pour :</p>
             <ul className="mt-2 list-inside list-disc space-y-1">
-              <li>Fournir et améliorer le service BotForge</li>
+              <li>Fournir et améliorer le service botexpress</li>
               <li>Gérer les comptes utilisateurs et les abonnements</li>
               <li>Générer les réponses des chatbots via l&apos;intelligence artificielle</li>
               <li>Produire des statistiques anonymisées d&apos;utilisation</li>
@@ -120,7 +120,7 @@ export default function PrivacyPage() {
             </ul>
             <p className="mt-2">
               Pour exercer ces droits, contactez-nous à :{" "}
-              <strong className="text-foreground">privacy@botforge.app</strong>
+              <strong className="text-foreground">privacy@botexpress.fr</strong>
             </p>
             <p className="mt-2">
               Vous pouvez également introduire une réclamation auprès de la CNIL :{" "}
@@ -138,7 +138,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="mb-3 text-lg font-semibold text-foreground">8. Cookies</h2>
             <p>
-              BotForge utilise uniquement des cookies strictement nécessaires au
+              botexpress utilise uniquement des cookies strictement nécessaires au
               fonctionnement du service (authentification, préférences de session).
               Aucun cookie publicitaire ou de suivi n&apos;est utilisé.
             </p>

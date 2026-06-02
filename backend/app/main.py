@@ -5,7 +5,7 @@ from app.core.firebase import init_firebase
 from app.api.routes import chatbots, conversations, billing, users, support, admin
 
 app = FastAPI(
-    title="BotForge API",
+    title="botexpress API",
     description="API pour la plateforme de création de chatbots IA",
     version="1.0.0",
     docs_url=None,

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Connexion",
-  description: "Connectez-vous à votre compte BotForge pour gérer vos chatbots IA.",
+  description: "Connectez-vous à votre compte botexpress pour gérer vos chatbots IA.",
   robots: { index: false, follow: false },
 };
 

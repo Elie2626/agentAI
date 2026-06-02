@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Mentions légales",
-  description: "Mentions légales de BotForge, plateforme de création de chatbots IA pour sites web.",
-  alternates: { canonical: "https://botforge.app/legal" },
+  description: "Mentions légales de botexpress, plateforme de création de chatbots IA pour sites web.",
+  alternates: { canonical: "https://www.botexpress.fr/legal" },
 };
 
 export default function LegalPage() {
@@ -18,7 +18,7 @@ export default function LegalPage() {
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
               <Bot className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold">BotForge</span>
+            <span className="text-xl font-bold">botexpress</span>
           </Link>
         </div>
       </nav>
@@ -38,7 +38,7 @@ export default function LegalPage() {
           <section>
             <h2 className="mb-3 text-lg font-semibold text-foreground">1. Éditeur du site</h2>
             <p>
-              Le site BotForge est édité par :<br />
+              Le site botexpress est édité par :<br />
               <strong className="text-foreground">[Nom de la société]</strong><br />
               Forme juridique : [SAS / SARL / Auto-entrepreneur]<br />
               Capital social : [Montant] euros<br />
@@ -47,7 +47,7 @@ export default function LegalPage() {
               SIRET : [Numéro SIRET]<br />
               Numéro de TVA intracommunautaire : [Numéro]<br />
               Directeur de la publication : [Nom du responsable]<br />
-              Contact : contact@botforge.app
+              Contact : contact@botexpress.fr
             </p>
           </section>
 
@@ -65,7 +65,7 @@ export default function LegalPage() {
           <section>
             <h2 className="mb-3 text-lg font-semibold text-foreground">3. Propriété intellectuelle</h2>
             <p>
-              L&apos;ensemble du contenu du site BotForge (textes, images, graphismes, logo,
+              L&apos;ensemble du contenu du site botexpress (textes, images, graphismes, logo,
               icones, logiciels, base de données) est la propriété exclusive de l&apos;éditeur
               ou de ses partenaires et est protégé par les lois françaises et internationales
               relatives à la propriété intellectuelle.
@@ -86,7 +86,7 @@ export default function LegalPage() {
               fait ou du fait des tiers partenaires qui lui fournissent ces informations.
             </p>
             <p className="mt-2">
-              Le service BotForge utilise l&apos;intelligence artificielle pour générer des
+              Le service botexpress utilise l&apos;intelligence artificielle pour générer des
               réponses. Ces réponses sont fournies à titre informatif et ne sauraient
               constituer un conseil professionnel. L&apos;éditeur décline toute responsabilité
               quant à l&apos;exactitude des réponses générées par les chatbots.

@@ -107,24 +107,24 @@ export default function LandingPage() {
     "@graph": [
       {
         "@type": "Organization",
-        name: "BotForge",
-        url: "https://botforge.app",
-        logo: "https://botforge.app/icon.png",
+        name: "botexpress",
+        url: "https://www.botexpress.fr",
+        logo: "https://www.botexpress.fr/icon.png",
         description: "Plateforme SaaS de création de chatbots IA personnalisés pour sites web.",
         sameAs: [],
       },
       {
         "@type": "SoftwareApplication",
-        name: "BotForge",
+        name: "botexpress",
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",
-        url: "https://botforge.app",
+        url: "https://www.botexpress.fr",
         description: "Créez un chatbot IA personnalisé pour votre site web en 2 minutes. Analyse automatique du site, personnalisation visuelle, intégration en un clic.",
         offers: [
-          { "@type": "Offer", name: "Basic", price: "9.99", priceCurrency: "EUR", url: "https://botforge.app/auth/register" },
-          { "@type": "Offer", name: "Starter", price: "29", priceCurrency: "EUR", url: "https://botforge.app/auth/register" },
-          { "@type": "Offer", name: "Pro", price: "79", priceCurrency: "EUR", url: "https://botforge.app/auth/register" },
-          { "@type": "Offer", name: "Business", price: "199", priceCurrency: "EUR", url: "https://botforge.app/auth/register" },
+          { "@type": "Offer", name: "Basic", price: "9.99", priceCurrency: "EUR", url: "https://www.botexpress.fr/auth/register" },
+          { "@type": "Offer", name: "Starter", price: "29", priceCurrency: "EUR", url: "https://www.botexpress.fr/auth/register" },
+          { "@type": "Offer", name: "Pro", price: "79", priceCurrency: "EUR", url: "https://www.botexpress.fr/auth/register" },
+          { "@type": "Offer", name: "Business", price: "199", priceCurrency: "EUR", url: "https://www.botexpress.fr/auth/register" },
         ],
         aggregateRating: { "@type": "AggregateRating", ratingValue: "4.8", reviewCount: "127", bestRating: "5" },
       },
@@ -138,9 +138,9 @@ export default function LandingPage() {
       },
       {
         "@type": "WebPage",
-        name: "BotForge — Créer un chatbot IA pour site web",
+        name: "botexpress — Créer un chatbot IA pour site web",
         description: "Créez un chatbot IA personnalisé pour votre site web en 2 minutes.",
-        url: "https://botforge.app",
+        url: "https://www.botexpress.fr",
         inLanguage: "fr-FR",
       },
     ],
@@ -159,7 +159,7 @@ export default function LandingPage() {
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
               <Bot className="h-5 w-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold">BotForge</span>
+            <span className="text-xl font-bold">botexpress</span>
           </Link>
           <div className="hidden items-center gap-8 md:flex">
             <a href="#features" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav_features")}</a>
@@ -245,7 +245,7 @@ export default function LandingPage() {
                       <ArrowRight className="h-4 w-4 text-primary-foreground" />
                     </div>
                   </div>
-                  <p className="mt-2 text-center text-[10px] text-muted-foreground">Propulsé par BotForge</p>
+                  <p className="mt-2 text-center text-[10px] text-muted-foreground">Propulsé par botexpress</p>
                 </div>
               </div>
               {/* Decorative glow */}
@@ -427,7 +427,7 @@ export default function LandingPage() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
                 <Bot className="h-4 w-4 text-primary-foreground" />
               </div>
-              <span className="font-semibold">BotForge</span>
+              <span className="font-semibold">botexpress</span>
             </div>
             <div className="flex items-center gap-6">
               <Link href="/legal" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("footer_legal")}</Link>
@@ -435,7 +435,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="mt-6 border-t pt-6 text-center">
-            <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} BotForge. {t("footer_rights")}</p>
+            <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} botexpress. {t("footer_rights")}</p>
           </div>
         </div>
       </footer>

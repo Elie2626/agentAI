@@ -77,7 +77,7 @@ async def send_message(body: ChatMessage, request: Request):
     if not limits.get("can_deploy", False):
         raise HTTPException(
             status_code=403,
-            detail="Un abonnement est requis pour utiliser ce chatbot. Rendez-vous sur BotForge pour souscrire.",
+            detail="Un abonnement est requis pour utiliser ce chatbot. Rendez-vous sur botexpress pour souscrire.",
         )
 
     now = datetime.now(timezone.utc)

@@ -47,7 +47,7 @@ const fr = {
   how_step3_desc: "Copiez une seule ligne de code et collez-la dans votre site. Votre chatbot est en ligne instantanément.",
 
   // Testimonials
-  testimonials_title: "Ils utilisent BotForge pour leur service client",
+  testimonials_title: "Ils utilisent botexpress pour leur service client",
   testimonials_subtitle: "Des entreprises de toutes tailles font confiance à notre chatbot IA pour automatiser leur support.",
 
   // Pricing
@@ -62,8 +62,8 @@ const fr = {
   faq_title: "Questions fréquentes",
   faq_subtitle: "Tout ce que vous devez savoir avant de commencer.",
   faq1_q: "Est-ce que ça fonctionne avec WordPress / Shopify / Wix ?",
-  faq1_a: "Oui, BotForge fonctionne avec n'importe quel site web. Il suffit de coller une ligne de code HTML dans votre site, quel que soit le CMS utilisé.",
-  faq2_q: "Faut-il savoir coder pour utiliser BotForge ?",
+  faq1_a: "Oui, botexpress fonctionne avec n'importe quel site web. Il suffit de coller une ligne de code HTML dans votre site, quel que soit le CMS utilisé.",
+  faq2_q: "Faut-il savoir coder pour utiliser botexpress ?",
   faq2_a: "Non, aucune compétence technique n'est requise. Vous entrez l'URL de votre site, notre IA fait le reste. L'intégration se fait par un simple copier-coller.",
   faq3_q: "Combien de temps faut-il pour créer un chatbot ?",
   faq3_a: "Environ 2 minutes. Choisissez le type de chatbot, nommez-le, entrez votre URL — notre système analyse automatiquement toutes les pages de votre site.",
@@ -86,7 +86,7 @@ const fr = {
 
   // Auth
   auth_login_title: "Connexion",
-  auth_login_subtitle: "Connectez-vous à votre compte BotForge",
+  auth_login_subtitle: "Connectez-vous à votre compte botexpress",
   auth_google: "Continuer avec Google",
   auth_or: "ou",
   auth_email: "Email",
@@ -98,7 +98,7 @@ const fr = {
   auth_no_account: "Pas encore de compte ?",
   auth_create_account: "Créer un compte",
   auth_register_title: "Créer un compte",
-  auth_register_subtitle: "Créez votre compte BotForge gratuit",
+  auth_register_subtitle: "Créez votre compte botexpress gratuit",
   auth_register_btn: "Créer mon compte",
   auth_has_account: "Déjà un compte ?",
   auth_login_link: "Se connecter",

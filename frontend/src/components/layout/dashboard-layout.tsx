@@ -62,7 +62,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
             <Bot className="h-4 w-4 text-primary-foreground" />
           </div>
-          <span className="font-bold">BotForge</span>
+          <span className="font-bold">botexpress</span>
         </Link>
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -90,7 +90,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
               <Bot className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="font-bold">BotForge</span>
+            <span className="font-bold">botexpress</span>
           </Link>
 
           <nav className="flex-1 space-y-1 px-3 py-4">
