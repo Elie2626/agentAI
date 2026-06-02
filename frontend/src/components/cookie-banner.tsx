@@ -53,27 +53,29 @@ export function CookieBanner() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur-sm shadow-lg">
-      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-        <p className="text-sm text-muted-foreground">
-          Nous utilisons des cookies pour améliorer votre expérience et analyser notre trafic.{" "}
-          <a href="/privacy" className="underline hover:text-foreground">
-            En savoir plus
-          </a>
-          .
-        </p>
-        <div className="flex shrink-0 gap-3">
-          <button
-            onClick={decline}
-            className="rounded-lg border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
-          >
-            Refuser
-          </button>
-          <button
-            onClick={accept}
-            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-          >
-            Accepter
-          </button>
+      <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-center text-sm text-muted-foreground sm:text-left">
+            Nous utilisons des cookies pour améliorer votre expérience et analyser notre trafic.{" "}
+            <a href="/privacy" className="underline hover:text-foreground">
+              En savoir plus
+            </a>
+            .
+          </p>
+          <div className="flex shrink-0 gap-3 self-center sm:self-auto">
+            <button
+              onClick={decline}
+              className="flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors hover:bg-muted sm:flex-none"
+            >
+              Refuser
+            </button>
+            <button
+              onClick={accept}
+              className="flex-1 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 sm:flex-none"
+            >
+              Accepter
+            </button>
+          </div>
         </div>
       </div>
     </div>
