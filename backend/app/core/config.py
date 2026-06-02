@@ -24,8 +24,7 @@ class Settings(BaseSettings):
     api_url: str = "http://localhost:8000"
     anthropic_api_key: str = ""
     admin_secret: str = ""
-    gmail_user: str = ""
-    gmail_app_password: str = ""
+    resend_api_key: str = ""
     support_email: str = "elieamar2007@gmail.com"
 
 

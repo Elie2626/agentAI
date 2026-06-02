@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 import asyncio
-import smtplib
 import uuid
 from datetime import datetime, timezone
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from fastapi import APIRouter, Depends, HTTPException
+import resend
 from google.cloud.firestore_v1.base_query import FieldFilter
 from pydantic import BaseModel, Field
 from app.middleware.auth import verify_firebase_token
@@ -44,39 +42,37 @@ ALLOWED_CATEGORIES = {"general", "bug", "billing", "feature", "other"}
 
 async def _send_ticket_email(ticket: dict) -> None:
     settings = get_settings()
-    if not settings.gmail_user or not settings.gmail_app_password:
+    if not settings.resend_api_key:
         return
 
+    resend.api_key = settings.resend_api_key
+    cat = CATEGORY_LABELS.get(ticket["category"], ticket["category"])
+    html = f"""
+    <div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;padding:24px">
+      <h2 style="color:#6366f1;margin:0 0 16px">Nouveau ticket de support</h2>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:20px">
+        <tr><td style="padding:6px 0;color:#64748b;width:120px">De</td><td style="padding:6px 0;font-weight:600">{ticket['user_email']}</td></tr>
+        <tr><td style="padding:6px 0;color:#64748b">Plan</td><td style="padding:6px 0">{ticket['plan']}</td></tr>
+        <tr><td style="padding:6px 0;color:#64748b">Catégorie</td><td style="padding:6px 0">{cat}</td></tr>
+        <tr><td style="padding:6px 0;color:#64748b">Sujet</td><td style="padding:6px 0;font-weight:600">{ticket['subject']}</td></tr>
+      </table>
+      <div style="background:#f8fafc;border-radius:8px;padding:16px;white-space:pre-wrap;line-height:1.6">{ticket['message']}</div>
+      <p style="margin-top:20px;color:#94a3b8;font-size:13px">BotForge Admin Panel → http://localhost:4000</p>
+    </div>
+    """
+
     def _send():
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = f"[BotForge Support] {ticket['subject']}"
-        msg["From"] = f"BotForge <{settings.gmail_user}>"
-        msg["To"] = settings.support_email
-
-        cat = CATEGORY_LABELS.get(ticket["category"], ticket["category"])
-        html = f"""
-        <div style="font-family:system-ui,sans-serif;max-width:600px;margin:0 auto;padding:24px">
-          <h2 style="color:#6366f1;margin:0 0 16px">Nouveau ticket de support</h2>
-          <table style="width:100%;border-collapse:collapse;margin-bottom:20px">
-            <tr><td style="padding:6px 0;color:#64748b;width:120px">De</td><td style="padding:6px 0;font-weight:600">{ticket['user_email']}</td></tr>
-            <tr><td style="padding:6px 0;color:#64748b">Plan</td><td style="padding:6px 0">{ticket['plan']}</td></tr>
-            <tr><td style="padding:6px 0;color:#64748b">Catégorie</td><td style="padding:6px 0">{cat}</td></tr>
-            <tr><td style="padding:6px 0;color:#64748b">Sujet</td><td style="padding:6px 0;font-weight:600">{ticket['subject']}</td></tr>
-          </table>
-          <div style="background:#f8fafc;border-radius:8px;padding:16px;white-space:pre-wrap;line-height:1.6">{ticket['message']}</div>
-          <p style="margin-top:20px;color:#94a3b8;font-size:13px">BotForge Admin Panel → http://localhost:4000</p>
-        </div>
-        """
-        msg.attach(MIMEText(html, "html"))
-
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login(settings.gmail_user, settings.gmail_app_password)
-            server.sendmail(settings.gmail_user, settings.support_email, msg.as_string())
+        resend.Emails.send({
+            "from": "BotForge Support <onboarding@resend.dev>",
+            "to": [settings.support_email],
+            "subject": f"[BotForge Support] {ticket['subject']}",
+            "html": html,
+        })
 
     try:
         await asyncio.to_thread(_send)
     except Exception as e:
-        print(f"[support] email send failed: {e}")
+        print(f"[support] email failed: {e}")
 
 
 @router.post("", response_model=TicketResponse)
