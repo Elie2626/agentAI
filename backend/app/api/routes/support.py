@@ -3,6 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException
+from google.cloud.firestore_v1.base_query import FieldFilter
 from pydantic import BaseModel, Field
 from app.middleware.auth import verify_firebase_token
 from app.core.firebase import get_db
@@ -96,7 +97,7 @@ async def list_tickets(user: dict = Depends(verify_firebase_token)):
             detail="Le support email est disponible à partir du plan Starter.",
         )
 
-    docs = db.collection("support_tickets").where("user_id", "==", uid).stream()
+    docs = db.collection("support_tickets").where(filter=FieldFilter("user_id", "==", uid)).stream()
     results = []
     for doc in docs:
         d = doc.to_dict()

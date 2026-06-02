@@ -67,8 +67,12 @@ export default function SupportPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!subject.trim() || !message.trim()) {
-      toast.error("Veuillez remplir tous les champs");
+    if (subject.trim().length < 3) {
+      toast.error("Le sujet doit faire au moins 3 caractères");
+      return;
+    }
+    if (message.trim().length < 10) {
+      toast.error("Le message doit faire au moins 10 caractères");
       return;
     }
     setSending(true);
