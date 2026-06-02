@@ -15,6 +15,7 @@ import {
   BarChart3,
   Clock,
   Copy,
+  Download,
   HelpCircle,
   Lock,
   MessageSquare,
@@ -405,6 +406,72 @@ export default function ChatbotDetailPage() {
                 )}
               </CardContent>
             </Card>
+
+            {usage?.can_deploy && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Plugins CMS</CardTitle>
+                  <CardDescription>Installez votre chatbot en un clic sur WordPress ou Shopify.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* WordPress */}
+                  <div className="flex items-center justify-between gap-4 rounded-lg border p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/10">
+                        <svg className="h-5 w-5 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 1.542c1.58 0 3.056.46 4.295 1.252L5.794 16.295A8.453 8.453 0 013.542 12c0-4.669 3.789-8.458 8.458-8.458zm0 16.916a8.414 8.414 0 01-4.295-1.252l10.501-12.501A8.453 8.453 0 0120.458 12c0 4.669-3.789 8.458-8.458 8.458z"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">WordPress</p>
+                        <p className="text-xs text-muted-foreground">Plugin à installer via Extensions → Ajouter</p>
+                      </div>
+                    </div>
+                    <Button size="sm" variant="outline" asChild>
+                      <a href="/botexpress-chatbot.zip" download>
+                        <Download className="h-3.5 w-3.5 mr-1.5" />
+                        Télécharger
+                      </a>
+                    </Button>
+                  </div>
+                  {/* Shopify */}
+                  <div className="rounded-lg border p-4 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-green-500/10">
+                        <svg className="h-5 w-5 text-green-600" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M15.337 23.979l7.453-1.667S19.948 7.762 19.93 7.624c-.018-.137-.137-.224-.239-.224s-2.016-.137-2.016-.137-.877-.943-1.39-1.391V23.98zM13.29 5.777s-.893-.257-1.904-.257c-1.563 0-2.337.97-2.337 1.941 0 1.086.775 1.733 1.904 2.337 1.11.604 1.427.97 1.427 1.597 0 .604-.515 1.086-1.427 1.086-.98 0-1.904-.515-1.904-.515l-.275 1.597s.877.515 2.235.515c1.598 0 2.75-.98 2.75-2.337 0-1.143-.774-1.792-1.904-2.337-1.013-.55-1.427-.893-1.427-1.528 0-.515.412-.98 1.28-.98.775 0 1.39.257 1.39.257l.192-1.377zm-4.672-.412C9.17 4.022 10.36 3.5 10.36 3.5s-1.39-5.088-1.39-5.088L5.6 23.979l7.453 1.667V6.04c-.086.02-.163.05-.24.085l-.195 1.095z"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">Shopify</p>
+                        <p className="text-xs text-muted-foreground">Collez ce code dans votre <code className="text-xs bg-muted px-1 rounded">theme.liquid</code></p>
+                      </div>
+                    </div>
+                    <div className="relative">
+                      <pre className="overflow-x-auto rounded-lg bg-foreground/5 p-3 text-xs">
+                        <code>{`<script\n  src="https://www.botexpress.fr/widget.js"\n  data-chatbot-id="${chatbot.id}"\n  data-api-url="https://agentai-23tt.onrender.com"\n  defer\n></script>`}</code>
+                      </pre>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="absolute right-2 top-2"
+                        onClick={() => {
+                          navigator.clipboard.writeText(
+                            `<script\n  src="https://www.botexpress.fr/widget.js"\n  data-chatbot-id="${chatbot.id}"\n  data-api-url="https://agentai-23tt.onrender.com"\n  defer\n></script>`
+                          );
+                          toast.success("Code Shopify copié !");
+                        }}
+                      >
+                        <Copy className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Dans Shopify Admin → Boutique en ligne → Thèmes → Modifier le code → <code className="bg-muted px-1 rounded">layout/theme.liquid</code> → collez juste avant <code className="bg-muted px-1 rounded">&lt;/body&gt;</code>
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           <div className="lg:sticky lg:top-8 space-y-6">
