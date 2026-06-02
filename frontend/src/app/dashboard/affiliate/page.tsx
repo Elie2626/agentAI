@@ -7,23 +7,30 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
-import { Copy, Users, Euro, Clock, CheckCircle2, Share2, TrendingUp } from "lucide-react";
+import { Copy, Users, Clock, CheckCircle2, Share2, TrendingUp, CreditCard } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import toast from "react-hot-toast";
 
 export default function AffiliatePage() {
   const [info, setInfo] = useState<AffiliateInfo | null>(null);
   const [stats, setStats] = useState<AffiliateStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [ibanName, setIbanName] = useState("");
+  const [iban, setIban] = useState("");
+  const [savingPayout, setSavingPayout] = useState(false);
 
   useEffect(() => {
     async function load() {
       try {
-        const [affiliateInfo, affiliateStats] = await Promise.all([
+        const [affiliateInfo, affiliateStats, payoutInfo] = await Promise.all([
           api.getAffiliate(),
           api.getAffiliateStats(),
+          api.getPayoutInfo(),
         ]);
         setInfo(affiliateInfo);
         setStats(affiliateStats);
+        setIbanName(payoutInfo.full_name || "");
+        setIban(payoutInfo.iban || "");
       } catch {
         toast.error("Erreur de chargement");
       } finally {
@@ -36,6 +43,20 @@ export default function AffiliatePage() {
   function copy(text: string, label: string) {
     navigator.clipboard.writeText(text);
     toast.success(`${label} copié !`);
+  }
+
+  async function handleSavePayout() {
+    if (!ibanName.trim()) { toast.error("Entrez votre nom complet"); return; }
+    if (!iban.trim()) { toast.error("Entrez votre IBAN"); return; }
+    setSavingPayout(true);
+    try {
+      await api.savePayoutInfo({ full_name: ibanName.trim(), iban: iban.trim() });
+      toast.success("Informations de paiement enregistrées");
+    } catch (e: any) {
+      toast.error(e.message || "Erreur lors de la sauvegarde");
+    } finally {
+      setSavingPayout(false);
+    }
   }
 
   if (loading) {
@@ -202,9 +223,61 @@ export default function AffiliatePage() {
         </>
       )}
 
+      {/* IBAN payout info */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CreditCard className="h-4 w-4" />
+            Informations de paiement
+          </CardTitle>
+          <CardDescription>
+            Renseignez votre IBAN pour recevoir vos commissions par virement bancaire.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <label htmlFor="payout-name" className="text-sm font-medium">
+              Nom complet (titulaire du compte) *
+            </label>
+            <Input
+              id="payout-name"
+              placeholder="Jean Dupont"
+              value={ibanName}
+              onChange={(e) => setIbanName(e.target.value)}
+              autoComplete="name"
+            />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="payout-iban" className="text-sm font-medium">
+              IBAN *
+            </label>
+            <Input
+              id="payout-iban"
+              placeholder="FR76 3000 6000 0112 3456 7890 189"
+              value={iban}
+              onChange={(e) => setIban(e.target.value.toUpperCase())}
+              autoComplete="off"
+              className="font-mono tracking-wider"
+            />
+            <p className="text-xs text-muted-foreground">
+              Format : FR76 XXXX XXXX XXXX XXXX XXXX XXX — les espaces sont acceptés.
+            </p>
+          </div>
+          {iban && (
+            <div className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2 text-xs font-mono text-muted-foreground">
+              <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+              {iban.replace(/\s/g, "").replace(/(.{4})/g, "$1 ").trim()}
+            </div>
+          )}
+          <Button onClick={handleSavePayout} disabled={savingPayout} className="w-full">
+            {savingPayout ? <Spinner className="h-4 w-4" /> : "Enregistrer mes coordonnées bancaires"}
+          </Button>
+        </CardContent>
+      </Card>
+
       <Card className="border-muted bg-muted/30">
         <CardContent className="p-5 text-sm text-muted-foreground">
-          <strong className="text-foreground">Conditions :</strong> Les commissions sont versées manuellement chaque mois via virement ou PayPal une fois le seuil de 20€ atteint. Elles sont calculées sur la première mensualité payée par chaque filleul (hors période d&apos;essai).
+          <strong className="text-foreground">Conditions :</strong> Les commissions sont versées par virement SEPA chaque mois une fois le seuil de 20€ atteint. Elles sont calculées sur la première mensualité payée par chaque filleul (hors période d&apos;essai). Vos coordonnées bancaires sont stockées de façon sécurisée et ne sont jamais partagées.
         </CardContent>
       </Card>
     </div>

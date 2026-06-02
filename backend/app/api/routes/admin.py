@@ -176,6 +176,66 @@ async def admin_list_cookies(x_admin_secret: Optional[str] = Header(default=None
     }
 
 
+@router.get("/affiliates")
+async def admin_list_affiliates(x_admin_secret: Optional[str] = Header(default=None)):
+    """List all users with pending commissions + their IBAN."""
+    _require_admin(x_admin_secret)
+    db = get_db()
+
+    commissions = list(db.collection("commissions").stream())
+
+    # Group by referrer
+    referrer_data: dict = {}
+    for c in commissions:
+        d = c.to_dict()
+        uid = d.get("referrer_uid", "")
+        if not uid:
+            continue
+        if uid not in referrer_data:
+            referrer_data[uid] = {"pending": 0.0, "paid": 0.0, "total": 0.0, "count": 0}
+        amount = d.get("commission", 0.0)
+        referrer_data[uid]["total"] += amount
+        referrer_data[uid]["count"] += 1
+        if d.get("status") == "pending":
+            referrer_data[uid]["pending"] += amount
+        else:
+            referrer_data[uid]["paid"] += amount
+
+    result = []
+    for uid, stats in referrer_data.items():
+        user_doc = db.collection("users").document(uid).get()
+        user_info = user_doc.to_dict() if user_doc.exists else {}
+        result.append({
+            "uid": uid,
+            "email": user_info.get("email", ""),
+            "full_name": user_info.get("payout_name", ""),
+            "iban": user_info.get("payout_iban", ""),
+            "referral_code": user_info.get("referral_code", ""),
+            "total_referrals": stats["count"],
+            "pending": round(stats["pending"], 2),
+            "paid": round(stats["paid"], 2),
+            "total": round(stats["total"], 2),
+        })
+
+    result.sort(key=lambda x: x["pending"], reverse=True)
+    return {"affiliates": result}
+
+
+@router.patch("/commissions/{commission_id}/mark-paid")
+async def admin_mark_commission_paid(
+    commission_id: str,
+    x_admin_secret: Optional[str] = Header(default=None),
+):
+    """Mark a commission as paid."""
+    _require_admin(x_admin_secret)
+    db = get_db()
+    ref = db.collection("commissions").document(commission_id)
+    if not ref.get().exists:
+        raise HTTPException(status_code=404, detail="Commission non trouvée")
+    ref.update({"status": "paid", "paid_at": datetime.now(timezone.utc).isoformat()})
+    return {"status": "paid"}
+
+
 @router.delete("/users/{uid}")
 async def admin_delete_user(
     uid: str,

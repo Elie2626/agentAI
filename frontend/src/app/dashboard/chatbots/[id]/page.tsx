@@ -248,7 +248,7 @@ export default function ChatbotDetailPage() {
 
       {/* Stats tab */}
       {tab === "stats" && (
-        <StatsTab analytics={analytics} loading={analyticsLoading} primaryColor={chatbot.primary_color} />
+        <StatsTab analytics={analytics} loading={analyticsLoading} primaryColor={chatbot.primary_color} leads={leads} leadCaptureEnabled={leadCaptureEnabled} />
       )}
 
       {/* Config tab */}
@@ -656,10 +656,14 @@ function StatsTab({
   analytics,
   loading,
   primaryColor,
+  leads,
+  leadCaptureEnabled,
 }: {
   analytics: ChatbotAnalytics | null;
   loading: boolean;
   primaryColor: string;
+  leads: { id: string; name: string; email: string; phone: string; created_at: string }[];
+  leadCaptureEnabled: boolean;
 }) {
   if (loading) {
     return (
@@ -738,6 +742,55 @@ function StatsTab({
           </CardContent>
         </Card>
       </div>
+
+      {/* Leads card — shown if capture enabled OR at least 1 lead exists */}
+      {(leadCaptureEnabled || leads.length > 0) && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Users className="h-4 w-4 text-primary" />
+                Leads collectés
+              </CardTitle>
+              <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                {leads.length} lead{leads.length !== 1 ? "s" : ""}
+              </span>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {leads.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <Users className="mb-2 h-8 w-8 text-muted-foreground/30" />
+                <p className="text-sm text-muted-foreground">Aucun lead pour le moment.</p>
+                <p className="mt-1 text-xs text-muted-foreground">Les visiteurs qui remplissent le formulaire apparaîtront ici.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b text-left text-xs text-muted-foreground">
+                      <th className="pb-2 pr-4 font-medium">Nom</th>
+                      <th className="pb-2 pr-4 font-medium">Email</th>
+                      <th className="pb-2 pr-4 font-medium">Téléphone</th>
+                      <th className="pb-2 font-medium">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y">
+                    {leads.map((lead) => (
+                      <tr key={lead.id}>
+                        <td className="py-2 pr-4 font-medium">{lead.name || <span className="text-muted-foreground">—</span>}</td>
+                        <td className="py-2 pr-4">{lead.email || <span className="text-muted-foreground">—</span>}</td>
+                        <td className="py-2 pr-4">{lead.phone || <span className="text-muted-foreground">—</span>}</td>
+                        <td className="py-2 text-muted-foreground text-xs">{new Date(lead.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Daily activity - last 30 days */}

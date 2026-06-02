@@ -5,9 +5,15 @@ import string
 from datetime import datetime, timezone
 from typing import Optional
 
+from pydantic import BaseModel
 from fastapi import APIRouter, Depends, HTTPException
 from app.middleware.auth import verify_firebase_token
 from app.core.firebase import get_db
+
+
+class PayoutInfoBody(BaseModel):
+    full_name: str
+    iban: str
 
 router = APIRouter(prefix="/affiliate", tags=["affiliate"])
 
@@ -50,6 +56,40 @@ async def get_affiliate(user: dict = Depends(verify_firebase_token)):
     }
 
 
+@router.get("/payout-info")
+async def get_payout_info(user: dict = Depends(verify_firebase_token)):
+    """Return the user's saved IBAN and name."""
+    db = get_db()
+    doc = db.collection("users").document(user["uid"]).get()
+    data = doc.to_dict() if doc.exists else {}
+    return {
+        "full_name": data.get("payout_name", ""),
+        "iban": data.get("payout_iban", ""),
+    }
+
+
+@router.put("/payout-info")
+async def save_payout_info(
+    body: PayoutInfoBody,
+    user: dict = Depends(verify_firebase_token),
+):
+    """Save the user's IBAN and name for commission payouts."""
+    # Basic IBAN format check (letters+digits, 15–34 chars)
+    iban_clean = body.iban.replace(" ", "").upper()
+    if len(iban_clean) < 15 or len(iban_clean) > 34:
+        raise HTTPException(status_code=400, detail="IBAN invalide")
+
+    db = get_db()
+    db.collection("users").document(user["uid"]).set(
+        {
+            "payout_name": body.full_name.strip(),
+            "payout_iban": iban_clean,
+        },
+        merge=True,
+    )
+    return {"ok": True}
+
+
 @router.get("/stats")
 async def get_affiliate_stats(user: dict = Depends(verify_firebase_token)):
     """Return earnings and referral list for the authenticated user."""
@@ -78,10 +118,15 @@ async def get_affiliate_stats(user: dict = Depends(verify_firebase_token)):
     pending = sum(r["commission"] for r in result if r["status"] == "pending")
     paid = sum(r["commission"] for r in result if r["status"] == "paid")
 
+    user_doc = db.collection("users").document(user["uid"]).get()
+    user_data = user_doc.to_dict() if user_doc.exists else {}
+
     return {
         "total_referrals": len(result),
         "total_earned": round(total_earned, 2),
         "pending": round(pending, 2),
         "paid": round(paid, 2),
         "referrals": result,
+        "payout_name": user_data.get("payout_name", ""),
+        "payout_iban": user_data.get("payout_iban", ""),
     }

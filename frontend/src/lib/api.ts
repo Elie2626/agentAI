@@ -81,6 +81,12 @@ export const api = {
   // Affiliate
   getAffiliate: () => fetchApi("/api/v1/affiliate"),
   getAffiliateStats: () => fetchApi("/api/v1/affiliate/stats"),
+  getPayoutInfo: () => fetchApi("/api/v1/affiliate/payout-info"),
+  savePayoutInfo: (data: { full_name: string; iban: string }) =>
+    fetchApi("/api/v1/affiliate/payout-info", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
 
   // Leads
   getLeads: (chatbotId: string) => fetchApi(`/api/v1/leads/${chatbotId}`),
