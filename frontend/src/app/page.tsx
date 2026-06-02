@@ -22,6 +22,14 @@ import {
   Users,
   Building2,
   Shield,
+  UtensilsCrossed,
+  Home,
+  ShoppingCart,
+  Wrench,
+  HeartPulse,
+  Briefcase,
+  Clock,
+  CheckCircle2,
 } from "lucide-react";
 
 /* ───────── DATA ───────── */
@@ -409,6 +417,64 @@ export default function LandingPage() {
         </section>
       </Reveal>
 
+      {/* ── Niches ── */}
+      <Reveal>
+        <section className="border-t px-4 py-24 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="mx-auto max-w-2xl text-center">
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t("niches_title")}</h2>
+              <p className="mt-4 text-lg text-muted-foreground">{t("niches_subtitle")}</p>
+            </div>
+            <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {[
+                { icon: UtensilsCrossed, key: "restaurant", href: "/chatbot-restaurant", color: "text-orange-500", bg: "bg-orange-500/10" },
+                { icon: Home,            key: "immo",       href: "/chatbot-immobilier", color: "text-emerald-500", bg: "bg-emerald-500/10" },
+                { icon: ShoppingCart,    key: "ecommerce",  href: "/chatbot-ecommerce",  color: "text-blue-500",    bg: "bg-blue-500/10" },
+                { icon: Wrench,          key: "pme",        href: "/chatbot-pme",         color: "text-violet-500",  bg: "bg-violet-500/10" },
+                { icon: HeartPulse,      key: "sante",      href: "/auth/register",       color: "text-rose-500",    bg: "bg-rose-500/10" },
+                { icon: Briefcase,       key: "service",    href: "/auth/register",       color: "text-primary",     bg: "bg-primary/10" },
+              ].map(({ icon: Icon, key, href, color, bg }) => (
+                <Link key={key} href={href} className="group rounded-2xl border bg-card p-6 transition-all hover:shadow-md hover:border-primary/40">
+                  <div className={`mb-4 flex h-11 w-11 items-center justify-center rounded-xl ${bg}`}>
+                    <Icon className={`h-5 w-5 ${color}`} />
+                  </div>
+                  <h3 className="font-semibold">{t(`niche_${key}` as never)}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{t(`niche_${key}_desc` as never)}</p>
+                  <span className={`mt-4 inline-flex items-center gap-1 text-sm font-medium ${color} opacity-0 transition-opacity group-hover:opacity-100`}>
+                    En savoir plus <ArrowRight className="h-3.5 w-3.5" />
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      </Reveal>
+
+      {/* ── Objections ── */}
+      <Reveal>
+        <section className="border-t bg-muted/30 px-4 py-24 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="mx-auto max-w-2xl text-center">
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t("obj_title")}</h2>
+            </div>
+            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {(["1","2","3","4"] as const).map((n) => (
+                <div key={n} className="rounded-2xl border bg-card p-6">
+                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
+                    {n === "1" ? <Clock className="h-5 w-5 text-primary" /> :
+                     n === "2" ? <Bot className="h-5 w-5 text-primary" /> :
+                     n === "3" ? <Code2 className="h-5 w-5 text-primary" /> :
+                                 <Palette className="h-5 w-5 text-primary" />}
+                  </div>
+                  <h3 className="font-semibold">{t(`obj_${n}_title` as never)}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{t(`obj_${n}_desc` as never)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      </Reveal>
+
       {/* ── CTA final ── */}
       <section className="border-t bg-primary/5 px-4 py-20 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
@@ -417,6 +483,11 @@ export default function LandingPage() {
           <Button size="lg" asChild className="mt-8">
             <Link href="/auth/register">{t("cta_button")} <ArrowRight className="h-4 w-4" /></Link>
           </Button>
+          <p className="mt-4 text-sm text-muted-foreground flex items-center justify-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-emerald-500" /> Aucune carte bancaire &nbsp;·&nbsp;
+            <CheckCircle2 className="h-4 w-4 text-emerald-500" /> Sans code &nbsp;·&nbsp;
+            <CheckCircle2 className="h-4 w-4 text-emerald-500" /> Prêt en 30 secondes
+          </p>
         </div>
       </section>
 

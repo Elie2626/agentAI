@@ -8,12 +8,12 @@ const fr = {
   nav_dashboard: "Dashboard",
 
   // Hero
-  hero_badge: "Propulsé par l'IA",
-  hero_title1: "Créez votre chatbot IA",
-  hero_title2: "pour votre site web",
-  hero_subtitle: "Entrez l'URL de votre site internet, notre intelligence artificielle analyse automatiquement toutes les pages et crée un assistant virtuel personnalisé aux couleurs de votre marque. Compatible WordPress, Shopify et tous les CMS.",
+  hero_badge: "De l'URL au chatbot en 30 secondes",
+  hero_title1: "Collez votre URL.",
+  hero_title2: "Votre chatbot est prêt.",
+  hero_subtitle: "Notre IA analyse votre site, apprend votre contenu, adopte vos couleurs — et répond à vos visiteurs 24h/24. Sans code. Sans effort.",
   hero_cta1: "Créer mon chatbot gratuitement",
-  hero_cta2: "Voir les fonctionnalités",
+  hero_cta2: "Voir en action",
 
   // Social proof
   social_chatbots: "chatbots créés",
@@ -74,10 +74,37 @@ const fr = {
   faq6_q: "Comment le chatbot connaît-il mon site ?",
   faq6_a: "À la création, notre système explore automatiquement toutes les pages de votre site (selon votre plan) et extrait le contenu. Le chatbot utilise ces données pour répondre avec précision.",
 
+  // Niches section
+  niches_title: "Pour votre secteur d'activité",
+  niches_subtitle: "botexpress s'adapte à chaque métier. Votre chatbot connaît vos produits, vos services, vos horaires — et répond à la place de votre équipe.",
+  niche_restaurant: "Restaurant",
+  niche_restaurant_desc: "Menu, réservations, horaires, allergènes. Vos clients obtiennent une réponse instantanée, même à 23h.",
+  niche_immo: "Immobilier",
+  niche_immo_desc: "Qualification de prospects, prise de RDV de visite, informations sur les biens. Vos leads captés 24h/24.",
+  niche_ecommerce: "E-commerce",
+  niche_ecommerce_desc: "Suivi de commandes, conseils produits, politique de retour. Réduisez les tickets de support de 60%.",
+  niche_pme: "PME & Artisans",
+  niche_pme_desc: "Devis, disponibilités, FAQ. Votre chatbot qualifie les prospects pendant que vous travaillez.",
+  niche_sante: "Santé & Bien-être",
+  niche_sante_desc: "Prise de rendez-vous, informations sur les soins, suivi patient. Disponible hors heures d'ouverture.",
+  niche_service: "Services & Conseil",
+  niche_service_desc: "Présentation de l'offre, qualification client, prise de contact. Votre commercial virtuel.",
+
+  // Objections section
+  obj_title: "Pourquoi botexpress plutôt qu'un formulaire de contact ?",
+  obj_1_title: "Réponse immédiate, pas dans 48h",
+  obj_1_desc: "Un formulaire dort dans votre boîte mail. Un chatbot répond en 2 secondes, à 3h du matin, le dimanche.",
+  obj_2_title: "Il connaît votre site par cœur",
+  obj_2_desc: "Contrairement à un chatbot générique, il est entraîné sur VOTRE contenu. Il cite vos prix, vos horaires, vos produits.",
+  obj_3_title: "1 ligne de code, pas un projet IT",
+  obj_3_desc: "Copiez-collez un script. C'est tout. Aucun développeur nécessaire, aucune intégration complexe.",
+  obj_4_title: "Vos couleurs, votre identité",
+  obj_4_desc: "Il ne ressemble pas à un chatbot générique. Il reprend automatiquement votre logo, vos couleurs, votre police.",
+
   // CTA
-  cta_title: "Ajoutez un chatbot IA à votre site web dès maintenant",
-  cta_subtitle: "Créez votre assistant virtuel intelligent gratuitement en moins de 2 minutes. Aucune carte bancaire requise, aucune compétence technique nécessaire.",
-  cta_button: "Créer mon chatbot maintenant",
+  cta_title: "Votre site répond à vos clients. Même quand vous dormez.",
+  cta_subtitle: "Créez votre chatbot en 30 secondes. Aucune carte bancaire. Aucune compétence technique.",
+  cta_button: "Créer mon chatbot gratuitement",
 
   // Footer
   footer_legal: "Mentions légales",
