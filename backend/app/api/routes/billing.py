@@ -64,9 +64,8 @@ async def create_checkout_session(
     db = get_db()
 
     user_doc = db.collection("users").document(user["uid"]).get()
-    customer_id = None
-    if user_doc.exists:
-        customer_id = user_doc.to_dict().get("stripe_customer_id")
+    user_data = user_doc.to_dict() if user_doc.exists else {}
+    customer_id = user_data.get("stripe_customer_id")
 
     if not customer_id:
         customer = s.Customer.create(
@@ -78,17 +77,22 @@ async def create_checkout_session(
             {"stripe_customer_id": customer_id}, merge=True
         )
 
+    # Trial: only offered if the user has never used it before
+    has_used_trial = user_data.get("has_used_trial", False)
     price_id = _get_price_id(body.plan.value, body.billing.value)
+
+    sub_data: dict = {
+        "metadata": {"firebase_uid": user["uid"], "plan": body.plan.value},
+    }
+    if not has_used_trial:
+        sub_data["trial_period_days"] = 7
 
     session = s.checkout.Session.create(
         customer=customer_id,
         payment_method_types=["card"],
         line_items=[{"price": price_id, "quantity": 1}],
         mode="subscription",
-        subscription_data={
-            "trial_period_days": 7,
-            "metadata": {"firebase_uid": user["uid"], "plan": body.plan.value},
-        },
+        subscription_data=sub_data,
         success_url=f"{settings.frontend_url}/dashboard/billing?success=true",
         cancel_url=f"{settings.frontend_url}/dashboard/billing?canceled=true",
         metadata={
@@ -96,10 +100,11 @@ async def create_checkout_session(
             "plan": body.plan.value,
             "billing": body.billing.value,
             "referral_code": body.referral_code or "",
+            "trial_offered": "0" if has_used_trial else "1",
         },
     )
 
-    return {"checkout_url": session.url}
+    return {"checkout_url": session.url, "trial_offered": not has_used_trial}
 
 
 @router.post("/portal")
@@ -148,34 +153,78 @@ async def stripe_webhook(request: Request):
         uid = session["metadata"].get("firebase_uid")
         plan = session["metadata"].get("plan")
         referral_code = session["metadata"].get("referral_code", "")
+        trial_was_offered = session["metadata"].get("trial_offered", "0") == "1"
+        sub_id = session.get("subscription")
+
         if uid and plan:
-            # Determine subscription status (trialing if trial was set)
-            sub_status = "trialing"
+            sub_status = "active"
             trial_end = None
-            if session.get("subscription"):
+
+            if sub_id:
                 try:
-                    sub = s.Subscription.retrieve(session["subscription"])
-                    sub_status = sub.get("status", "trialing")
-                    if sub.get("trial_end"):
-                        from datetime import datetime, timezone
-                        trial_end = datetime.fromtimestamp(sub["trial_end"], tz=timezone.utc).isoformat()
+                    sub = s.Subscription.retrieve(
+                        sub_id,
+                        expand=["default_payment_method"],
+                    )
+                    sub_status = sub.get("status", "active")
+
+                    # --- Card fingerprint check (cross-account abuse) ---
+                    if trial_was_offered and sub_status == "trialing":
+                        fingerprint = None
+                        dpm = sub.get("default_payment_method")
+                        if isinstance(dpm, dict):
+                            fingerprint = dpm.get("card", {}).get("fingerprint")
+                        elif isinstance(dpm, str):
+                            try:
+                                pm = s.PaymentMethod.retrieve(dpm)
+                                fingerprint = pm.get("card", {}).get("fingerprint")
+                            except Exception:
+                                pass
+
+                        if fingerprint:
+                            fp_doc = db.collection("trial_fingerprints").document(fingerprint).get()
+                            if fp_doc.exists and fp_doc.to_dict().get("uid") != uid:
+                                # Same card used before on another account → end trial immediately
+                                try:
+                                    s.Subscription.modify(sub_id, trial_end="now")
+                                    sub_status = "active"
+                                    trial_was_offered = False
+                                except Exception:
+                                    pass
+                            elif not fp_doc.exists:
+                                # First time this card is used for a trial → record it
+                                db.collection("trial_fingerprints").document(fingerprint).set({
+                                    "fingerprint": fingerprint,
+                                    "uid": uid,
+                                    "used_at": now.isoformat(),
+                                })
+
+                    if sub.get("trial_end") and sub_status == "trialing":
+                        trial_end = datetime.fromtimestamp(
+                            sub["trial_end"], tz=timezone.utc
+                        ).isoformat()
                 except Exception:
                     pass
 
             user_update = {
                 "plan": plan,
-                "stripe_subscription_id": session.get("subscription"),
+                "stripe_subscription_id": sub_id,
                 "subscription_status": sub_status,
                 "billing_anchor_day": now.day,
             }
+            # Mark trial as used so it's never offered again to this account
+            if trial_was_offered:
+                user_update["has_used_trial"] = True
             if trial_end:
                 user_update["trial_ends_at"] = trial_end
+            else:
+                user_update["trial_ends_at"] = None
 
             db.collection("users").document(uid).set(user_update, merge=True)
             db.collection("subscriptions").document(uid).set({
                 "user_id": uid,
                 "stripe_customer_id": session["customer"],
-                "stripe_subscription_id": session.get("subscription"),
+                "stripe_subscription_id": sub_id,
                 "plan": plan,
                 "status": sub_status,
                 "billing_anchor_day": now.day,
@@ -315,6 +364,7 @@ async def get_usage(user: dict = Depends(verify_firebase_token)):
         "plan": plan,
         "subscription_status": user_data.get("subscription_status", "none"),
         "trial_ends_at": user_data.get("trial_ends_at"),
+        "has_used_trial": user_data.get("has_used_trial", False),
         "messages_used": messages_used,
         "messages_limit": limits["max_messages_per_month"],
         "chatbots_used": len(chatbots_list),

@@ -34,15 +34,30 @@ def _generate_code(db) -> str:
     raise RuntimeError("Could not generate unique referral code")
 
 
+PAID_PLANS = {"basic", "starter", "pro", "business"}
+
+
+def _require_paid_plan(user_data: dict):
+    """Raise 403 if user doesn't have an active paid plan."""
+    plan = user_data.get("plan", "free")
+    status = user_data.get("subscription_status", "")
+    if plan not in PAID_PLANS or status not in ("active", "trialing"):
+        raise HTTPException(
+            status_code=403,
+            detail="Un abonnement actif est requis pour accéder au programme d'affiliation.",
+        )
+
+
 @router.get("")
 async def get_affiliate(user: dict = Depends(verify_firebase_token)):
-    """Get or create the user's referral code and link."""
+    """Get or create the user's referral code and link. Requires active subscription."""
     db = get_db()
     user_doc = db.collection("users").document(user["uid"]).get()
+    user_data = user_doc.to_dict() if user_doc.exists else {}
 
-    referral_code = None
-    if user_doc.exists:
-        referral_code = user_doc.to_dict().get("referral_code")
+    _require_paid_plan(user_data)
+
+    referral_code = user_data.get("referral_code")
 
     if not referral_code:
         referral_code = _generate_code(db)
@@ -62,10 +77,11 @@ async def get_affiliate(user: dict = Depends(verify_firebase_token)):
 
 @router.get("/payout-info")
 async def get_payout_info(user: dict = Depends(verify_firebase_token)):
-    """Return the user's saved IBAN and name."""
+    """Return the user's saved IBAN and name. Requires active subscription."""
     db = get_db()
     doc = db.collection("users").document(user["uid"]).get()
     data = doc.to_dict() if doc.exists else {}
+    _require_paid_plan(data)
     return {
         "full_name": data.get("payout_name", ""),
         "iban": data.get("payout_iban", ""),
@@ -77,7 +93,10 @@ async def save_payout_info(
     body: PayoutInfoBody,
     user: dict = Depends(verify_firebase_token),
 ):
-    """Save the user's IBAN and name for commission payouts."""
+    """Save the user's IBAN and name for commission payouts. Requires active subscription."""
+    db = get_db()
+    doc = db.collection("users").document(user["uid"]).get()
+    _require_paid_plan(doc.to_dict() if doc.exists else {})
     iban_clean = body.iban.replace(" ", "").upper()
     if not _IBAN_RE.match(iban_clean):
         raise HTTPException(status_code=400, detail="IBAN invalide (format attendu : FR76...)")
@@ -95,8 +114,10 @@ async def save_payout_info(
 
 @router.get("/stats")
 async def get_affiliate_stats(user: dict = Depends(verify_firebase_token)):
-    """Return earnings and referral list for the authenticated user."""
+    """Return earnings and referral list. Requires active subscription."""
     db = get_db()
+    user_doc_check = db.collection("users").document(user["uid"]).get()
+    _require_paid_plan(user_doc_check.to_dict() if user_doc_check.exists else {})
 
     commissions = list(
         db.collection("commissions")

@@ -101,6 +101,7 @@ function BillingContent() {
 
   const currentPlan = usage?.plan || "free";
   const isTrialing = usage?.subscription_status === "trialing";
+  const hasUsedTrial = usage?.has_used_trial ?? false;
   const trialDaysLeft = isTrialing && usage?.trial_ends_at
     ? getTrialDaysLeft(usage.trial_ends_at)
     : 0;
@@ -254,9 +255,15 @@ function BillingContent() {
                 )}
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="rounded-lg bg-primary/5 px-3 py-2 text-xs font-medium text-primary">
-                  7 jours gratuits
-                </div>
+                {!hasUsedTrial ? (
+                  <div className="rounded-lg bg-primary/5 px-3 py-2 text-xs font-medium text-primary">
+                    7 jours gratuits
+                  </div>
+                ) : (
+                  <div className="rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground">
+                    Essai déjà utilisé — facturation immédiate
+                  </div>
+                )}
                 <ul className="space-y-2">
                   {plan.features.map((f) => (
                     <li key={f} className="flex items-start gap-2 text-sm">
@@ -278,6 +285,8 @@ function BillingContent() {
                   >
                     {upgrading === plan.id ? (
                       <Spinner className="h-4 w-4" />
+                    ) : hasUsedTrial ? (
+                      "S'abonner"
                     ) : (
                       "Commencer l'essai gratuit"
                     )}

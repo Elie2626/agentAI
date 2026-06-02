@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
-import { Copy, Users, Clock, CheckCircle2, Share2, TrendingUp, CreditCard } from "lucide-react";
+import { Copy, Users, Clock, CheckCircle2, Share2, TrendingUp, CreditCard, Lock } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import Link from "next/link";
 import toast from "react-hot-toast";
 
 export default function AffiliatePage() {
@@ -18,6 +19,7 @@ export default function AffiliatePage() {
   const [ibanName, setIbanName] = useState("");
   const [iban, setIban] = useState("");
   const [savingPayout, setSavingPayout] = useState(false);
+  const [restricted, setRestricted] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -31,8 +33,12 @@ export default function AffiliatePage() {
         setStats(affiliateStats);
         setIbanName(payoutInfo.full_name || "");
         setIban(payoutInfo.iban || "");
-      } catch {
-        toast.error("Erreur de chargement");
+      } catch (e: any) {
+        if (e.message?.includes("abonnement actif") || e.message?.includes("403")) {
+          setRestricted(true);
+        } else {
+          toast.error("Erreur de chargement");
+        }
       } finally {
         setLoading(false);
       }
@@ -63,6 +69,24 @@ export default function AffiliatePage() {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
         <Spinner className="h-8 w-8 text-primary" />
+      </div>
+    );
+  }
+
+  if (restricted) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
+          <Lock className="h-8 w-8 text-muted-foreground" />
+        </div>
+        <h2 className="mt-4 text-xl font-bold">Abonnement requis</h2>
+        <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+          Le programme d&apos;affiliation est réservé aux membres avec un abonnement actif.
+          Commencez votre essai gratuit de 7 jours pour y accéder.
+        </p>
+        <Button asChild className="mt-6">
+          <Link href="/dashboard/billing">Voir les offres</Link>
+        </Button>
       </div>
     );
   }

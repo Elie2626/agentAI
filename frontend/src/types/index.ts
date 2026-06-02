@@ -35,6 +35,7 @@ export interface Usage {
   plan: string;
   subscription_status?: string;
   trial_ends_at?: string | null;
+  has_used_trial?: boolean;
   messages_used: number;
   messages_limit: number;
   chatbots_used: number;
