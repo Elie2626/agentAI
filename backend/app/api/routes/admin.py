@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from typing import Optional
 from fastapi import APIRouter, HTTPException, Header
 from google.cloud.firestore_v1.base_query import FieldFilter
 from pydantic import BaseModel
@@ -11,14 +12,14 @@ from app.services.usage import get_billing_period
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 
-def _require_admin(secret: str | None):
+def _require_admin(secret: Optional[str]):
     settings = get_settings()
     if not settings.admin_secret or secret != settings.admin_secret:
         raise HTTPException(status_code=401, detail="Non autorisé")
 
 
 @router.get("/stats")
-async def admin_stats(x_admin_secret: str | None = Header(default=None)):
+async def admin_stats(x_admin_secret: Optional[str] = Header(default=None)):
     _require_admin(x_admin_secret)
     db = get_db()
 
@@ -26,7 +27,7 @@ async def admin_stats(x_admin_secret: str | None = Header(default=None)):
     chatbots = list(db.collection("chatbots").stream())
     logs = list(db.collection("chat_logs").stream())
 
-    plan_distribution: dict[str, int] = {}
+    plan_distribution: dict = {}
     for doc in users:
         plan = doc.to_dict().get("plan", "free")
         plan_distribution[plan] = plan_distribution.get(plan, 0) + 1
@@ -40,14 +41,14 @@ async def admin_stats(x_admin_secret: str | None = Header(default=None)):
 
 
 @router.get("/users")
-async def admin_list_users(x_admin_secret: str | None = Header(default=None)):
+async def admin_list_users(x_admin_secret: Optional[str] = Header(default=None)):
     _require_admin(x_admin_secret)
     db = get_db()
 
     user_docs = list(db.collection("users").stream())
     chatbot_docs = list(db.collection("chatbots").stream())
 
-    chatbot_counts: dict[str, int] = {}
+    chatbot_counts: dict = {}
     for doc in chatbot_docs:
         owner = doc.to_dict().get("owner_id", "")
         chatbot_counts[owner] = chatbot_counts.get(owner, 0) + 1
@@ -56,7 +57,7 @@ async def admin_list_users(x_admin_secret: str | None = Header(default=None)):
     now = datetime.now(timezone.utc)
     period_key_month = now.strftime("%Y-%m")
     usage_docs = list(db.collection("usage").stream())
-    usage_map: dict[str, int] = {}
+    usage_map: dict = {}
     for doc in usage_docs:
         d = doc.to_dict()
         uid = d.get("user_id", "")
@@ -89,7 +90,7 @@ class UpdatePlanBody(BaseModel):
 async def admin_update_plan(
     uid: str,
     body: UpdatePlanBody,
-    x_admin_secret: str | None = Header(default=None),
+    x_admin_secret: Optional[str] = Header(default=None),
 ):
     _require_admin(x_admin_secret)
 
@@ -110,7 +111,7 @@ class UpdateTicketBody(BaseModel):
 
 
 @router.get("/tickets")
-async def admin_list_tickets(x_admin_secret: str | None = Header(default=None)):
+async def admin_list_tickets(x_admin_secret: Optional[str] = Header(default=None)):
     _require_admin(x_admin_secret)
     db = get_db()
     docs = list(db.collection("support_tickets").stream())
@@ -135,7 +136,7 @@ async def admin_list_tickets(x_admin_secret: str | None = Header(default=None)):
 async def admin_update_ticket_status(
     ticket_id: str,
     body: UpdateTicketBody,
-    x_admin_secret: str | None = Header(default=None),
+    x_admin_secret: Optional[str] = Header(default=None),
 ):
     _require_admin(x_admin_secret)
     if body.status not in ("open", "in_progress", "resolved"):
@@ -148,10 +149,37 @@ async def admin_update_ticket_status(
     return {"id": ticket_id, "status": body.status}
 
 
+@router.get("/cookies")
+async def admin_list_cookies(x_admin_secret: Optional[str] = Header(default=None)):
+    _require_admin(x_admin_secret)
+    db = get_db()
+    docs = list(db.collection("cookie_consents").stream())
+    result = []
+    for doc in docs:
+        d = doc.to_dict()
+        result.append({
+            "session_id": d.get("session_id", ""),
+            "accepted": d.get("accepted", False),
+            "page": d.get("page", ""),
+            "user_agent": d.get("user_agent", ""),
+            "ip": d.get("ip", ""),
+            "timestamp": d.get("timestamp", ""),
+        })
+    result.sort(key=lambda x: x["timestamp"], reverse=True)
+    accepted = sum(1 for r in result if r["accepted"])
+    return {
+        "total": len(result),
+        "accepted": accepted,
+        "declined": len(result) - accepted,
+        "rate": round(accepted / len(result) * 100) if result else 0,
+        "consents": result,
+    }
+
+
 @router.delete("/users/{uid}")
 async def admin_delete_user(
     uid: str,
-    x_admin_secret: str | None = Header(default=None),
+    x_admin_secret: Optional[str] = Header(default=None),
 ):
     _require_admin(x_admin_secret)
     db = get_db()

@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import get_settings
 from app.core.firebase import init_firebase
-from app.api.routes import chatbots, conversations, billing, users, support, admin
+from app.api.routes import chatbots, conversations, billing, users, support, admin, cookies
 
 app = FastAPI(
     title="botexpress API",
@@ -30,6 +30,7 @@ app.include_router(billing.router, prefix="/api/v1")
 app.include_router(users.router, prefix="/api/v1")
 app.include_router(support.router, prefix="/api/v1")
 app.include_router(admin.router, prefix="/api/v1")
+app.include_router(cookies.router, prefix="/api/v1")
 
 
 @app.on_event("startup")
