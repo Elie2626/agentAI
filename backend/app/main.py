@@ -36,6 +36,6 @@ async def startup():
     init_firebase()
 
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
 async def health():
     return {"status": "ok", "version": "1.0.0"}
