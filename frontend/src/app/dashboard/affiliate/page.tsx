@@ -264,9 +264,9 @@ export default function AffiliatePage() {
             </p>
           </div>
           {iban && (
-            <div className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2 text-xs font-mono text-muted-foreground">
-              <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
-              {iban.replace(/\s/g, "").replace(/(.{4})/g, "$1 ").trim()}
+            <div className="flex items-start gap-2 overflow-hidden rounded-lg bg-muted/50 px-3 py-2 text-xs font-mono text-muted-foreground">
+              <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-500" />
+              <span className="break-all">{iban.replace(/\s/g, "").replace(/(.{4})/g, "$1 ").trim()}</span>
             </div>
           )}
           <Button onClick={handleSavePayout} disabled={savingPayout} className="w-full">

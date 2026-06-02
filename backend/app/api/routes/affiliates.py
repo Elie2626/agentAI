@@ -5,15 +5,19 @@ import string
 from datetime import datetime, timezone
 from typing import Optional
 
-from pydantic import BaseModel
+import re
+from pydantic import BaseModel, Field
 from fastapi import APIRouter, Depends, HTTPException
 from app.middleware.auth import verify_firebase_token
 from app.core.firebase import get_db
 
+# IBAN: 2 letters (country) + 2 digits (check) + up to 30 alphanumeric chars
+_IBAN_RE = re.compile(r'^[A-Z]{2}[0-9]{2}[A-Z0-9]{1,30}$')
+
 
 class PayoutInfoBody(BaseModel):
-    full_name: str
-    iban: str
+    full_name: str = Field(min_length=2, max_length=150)
+    iban: str = Field(min_length=15, max_length=34)
 
 router = APIRouter(prefix="/affiliate", tags=["affiliate"])
 
@@ -74,10 +78,9 @@ async def save_payout_info(
     user: dict = Depends(verify_firebase_token),
 ):
     """Save the user's IBAN and name for commission payouts."""
-    # Basic IBAN format check (letters+digits, 15–34 chars)
     iban_clean = body.iban.replace(" ", "").upper()
-    if len(iban_clean) < 15 or len(iban_clean) > 34:
-        raise HTTPException(status_code=400, detail="IBAN invalide")
+    if not _IBAN_RE.match(iban_clean):
+        raise HTTPException(status_code=400, detail="IBAN invalide (format attendu : FR76...)")
 
     db = get_db()
     db.collection("users").document(user["uid"]).set(

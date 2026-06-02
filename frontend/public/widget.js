@@ -203,10 +203,15 @@
     var fieldLabels = { name: "Votre nom", email: "Votre email", phone: "Votre téléphone" };
     var fieldTypes = { name: "text", email: "email", phone: "tel" };
 
-    var fieldsHTML = fields.map(function (f) {
+    // Only allow known safe field keys to prevent XSS
+    var allowedFields = ["name", "email", "phone"];
+    var safeFields = fields.filter(function(f) { return allowedFields.indexOf(f) !== -1; });
+    var fieldsHTML = safeFields.map(function (f) {
+      var label = escapeHtml(fieldLabels[f] || f);
+      var inputType = escapeHtml(fieldTypes[f] || "text");
       return '<div style="margin-bottom:12px">' +
-        '<label style="display:block;font-size:13px;font-weight:500;margin-bottom:4px;color:#374151">' + (fieldLabels[f] || f) + '</label>' +
-        '<input name="bf_' + f + '" type="' + (fieldTypes[f] || "text") + '" placeholder="' + (fieldLabels[f] || f) + '" ' +
+        '<label style="display:block;font-size:13px;font-weight:500;margin-bottom:4px;color:#374151">' + label + '</label>' +
+        '<input name="bf_' + escapeHtml(f) + '" type="' + inputType + '" placeholder="' + label + '" ' +
         'style="width:100%;box-sizing:border-box;border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px;font-size:14px;outline:none;font-family:inherit;background:#f9fafb" required>' +
         '</div>';
     }).join("");

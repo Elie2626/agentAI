@@ -117,21 +117,23 @@ function BillingContent() {
       {/* Trial banner */}
       {isTrialing && (
         <Card className="border-amber-500/30 bg-amber-500/5">
-          <CardContent className="flex items-center gap-4 p-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/10">
-              <Clock className="h-5 w-5 text-amber-600" />
+          <CardContent className="p-4">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/10">
+                <Clock className="h-5 w-5 text-amber-600" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-amber-700 dark:text-amber-400">
+                  Essai gratuit — {trialDaysLeft} jour{trialDaysLeft > 1 ? "s" : ""} restant{trialDaysLeft > 1 ? "s" : ""}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Votre carte sera débitée automatiquement à la fin de l&apos;essai.
+                </p>
+              </div>
             </div>
-            <div className="flex-1">
-              <p className="font-semibold text-amber-700 dark:text-amber-400">
-                Essai gratuit en cours — {trialDaysLeft} jour{trialDaysLeft > 1 ? "s" : ""} restant{trialDaysLeft > 1 ? "s" : ""}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Votre carte sera débitée automatiquement à la fin de l&apos;essai. Résiliez à tout moment depuis le portail.
-              </p>
-            </div>
-            <Button size="sm" variant="outline" onClick={handleManage}>
+            <Button size="sm" variant="outline" onClick={handleManage} className="mt-3 w-full sm:w-auto">
               <CreditCard className="h-4 w-4" />
-              Gérer
+              Gérer l&apos;abonnement
             </Button>
           </CardContent>
         </Card>
@@ -141,12 +143,12 @@ function BillingContent() {
       {usage && (
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-3">
               <CardTitle>Utilisation actuelle</CardTitle>
               {currentPlan !== "free" && (
-                <Button variant="outline" size="sm" onClick={handleManage}>
+                <Button variant="outline" size="sm" onClick={handleManage} className="shrink-0">
                   <CreditCard className="h-4 w-4" />
-                  Gérer l&apos;abonnement
+                  <span className="hidden sm:inline">Gérer l&apos;abonnement</span>
                   <ExternalLink className="h-3.5 w-3.5" />
                 </Button>
               )}
@@ -210,14 +212,14 @@ function BillingContent() {
             </span>
           </button>
         </div>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Gift className="h-4 w-4 text-primary" />
-          <span>7 jours gratuits sur tous les plans — carte requise, sans engagement</span>
+        <div className="flex flex-wrap items-center justify-center gap-1.5 text-center text-sm text-muted-foreground">
+          <Gift className="h-4 w-4 shrink-0 text-primary" />
+          <span>7 jours gratuits · carte requise · résiliation à tout moment</span>
         </div>
       </div>
 
       {/* Plans */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {PLANS.map((plan) => {
           const isCurrent = currentPlan === plan.id;
           const price = billing === "annual"

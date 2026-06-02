@@ -503,7 +503,7 @@ export default function LandingPage() {
                 <span className={`rounded-full px-1.5 py-0.5 text-xs font-bold ${billingCycle === "annual" ? "bg-white/20 text-white" : "bg-emerald-500/15 text-emerald-600"}`}>-20%</span>
               </button>
             </div>
-            <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <p className="flex flex-wrap items-center justify-center gap-1.5 text-center text-sm text-muted-foreground">
               <Zap className="h-3.5 w-3.5 text-primary" />
               7 jours gratuits · carte requise · résiliation à tout moment
             </p>
