@@ -340,9 +340,11 @@ export default function NewChatbotPage() {
             </CardHeader>
             <CardContent>
               <div className="relative">
-                <pre className="overflow-x-auto rounded-lg bg-foreground/5 p-4 text-sm">
-                  <code>{createdBot.embed_code}</code>
-                </pre>
+                <div className="overflow-x-auto rounded-lg bg-foreground/5">
+                  <pre className="p-4 pr-16 text-xs sm:text-sm whitespace-pre-wrap break-all">
+                    <code>{createdBot.embed_code}</code>
+                  </pre>
+                </div>
                 <Button
                   size="sm"
                   variant="secondary"
@@ -368,13 +370,13 @@ export default function NewChatbotPage() {
             </CardContent>
           </Card>
 
-          <div className="flex gap-3">
-            <Button asChild>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Button className="w-full sm:w-auto" asChild>
               <a href={`/dashboard/chatbots/${createdBot.id}`}>
                 Configurer le chatbot
               </a>
             </Button>
-            <Button variant="outline" asChild>
+            <Button variant="outline" className="w-full sm:w-auto" asChild>
               <a href="/dashboard">Retour au dashboard</a>
             </Button>
           </div>
