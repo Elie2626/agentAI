@@ -431,8 +431,8 @@ export default function LandingPage() {
                 { icon: Home,            key: "immo",       href: "/chatbot-immobilier", color: "text-emerald-500", bg: "bg-emerald-500/10" },
                 { icon: ShoppingCart,    key: "ecommerce",  href: "/chatbot-ecommerce",  color: "text-blue-500",    bg: "bg-blue-500/10" },
                 { icon: Wrench,          key: "pme",        href: "/chatbot-pme",         color: "text-violet-500",  bg: "bg-violet-500/10" },
-                { icon: HeartPulse,      key: "sante",      href: "/auth/register",       color: "text-rose-500",    bg: "bg-rose-500/10" },
-                { icon: Briefcase,       key: "service",    href: "/auth/register",       color: "text-primary",     bg: "bg-primary/10" },
+                { icon: HeartPulse,      key: "sante",      href: "/chatbot-sante",       color: "text-rose-500",    bg: "bg-rose-500/10" },
+                { icon: Briefcase,       key: "service",    href: "/chatbot-services",    color: "text-primary",     bg: "bg-primary/10" },
               ].map(({ icon: Icon, key, href, color, bg }) => (
                 <Link key={key} href={href} className="group rounded-2xl border bg-card p-6 transition-all hover:shadow-md hover:border-primary/40">
                   <div className={`mb-4 flex h-11 w-11 items-center justify-center rounded-xl ${bg}`}>
