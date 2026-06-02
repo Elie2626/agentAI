@@ -105,6 +105,49 @@ async def admin_update_plan(
     return {"uid": uid, "plan": body.plan}
 
 
+class UpdateTicketBody(BaseModel):
+    status: str
+
+
+@router.get("/tickets")
+async def admin_list_tickets(x_admin_secret: str | None = Header(default=None)):
+    _require_admin(x_admin_secret)
+    db = get_db()
+    docs = list(db.collection("support_tickets").stream())
+    result = []
+    for doc in docs:
+        d = doc.to_dict()
+        result.append({
+            "id": doc.id,
+            "user_email": d.get("user_email", ""),
+            "plan": d.get("plan", "free"),
+            "subject": d.get("subject", ""),
+            "message": d.get("message", ""),
+            "category": d.get("category", "general"),
+            "status": d.get("status", "open"),
+            "created_at": d.get("created_at", ""),
+        })
+    result.sort(key=lambda x: x["created_at"], reverse=True)
+    return result
+
+
+@router.patch("/tickets/{ticket_id}/status")
+async def admin_update_ticket_status(
+    ticket_id: str,
+    body: UpdateTicketBody,
+    x_admin_secret: str | None = Header(default=None),
+):
+    _require_admin(x_admin_secret)
+    if body.status not in ("open", "in_progress", "resolved"):
+        raise HTTPException(status_code=400, detail="Statut invalide")
+    db = get_db()
+    ref = db.collection("support_tickets").document(ticket_id)
+    if not ref.get().exists:
+        raise HTTPException(status_code=404, detail="Ticket non trouvé")
+    ref.update({"status": body.status, "updated_at": datetime.now(timezone.utc).isoformat()})
+    return {"id": ticket_id, "status": body.status}
+
+
 @router.delete("/users/{uid}")
 async def admin_delete_user(
     uid: str,
