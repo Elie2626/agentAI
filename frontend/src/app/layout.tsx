@@ -75,14 +75,16 @@ export const metadata: Metadata = {
     creator: "@botexpress",
   },
   category: "technology",
+  icons: {
+    icon: "/icon.png",
+    apple: "/apple-icon.png",
+    shortcut: "/favicon.png",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" className={geist.variable}>
-      <head>
-        <link rel="canonical" href="https://www.botexpress.fr" />
-      </head>
       <body className="min-h-dvh font-sans">
         <I18nProvider>
         {children}

@@ -1,37 +1,36 @@
 import type { MetadataRoute } from "next";
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://www.botexpress.fr";
-  const now = new Date().toISOString();
+const BASE = "https://www.botexpress.fr";
 
+export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: baseUrl,
-      lastModified: now,
+      url: BASE,
+      lastModified: new Date("2026-06-02"),
       changeFrequency: "weekly",
       priority: 1.0,
     },
     {
-      url: `${baseUrl}/auth/login`,
-      lastModified: now,
+      url: `${BASE}/auth/register`,
+      lastModified: new Date("2026-06-02"),
       changeFrequency: "monthly",
-      priority: 0.7,
+      priority: 0.9,
     },
     {
-      url: `${baseUrl}/auth/register`,
-      lastModified: now,
+      url: `${BASE}/auth/login`,
+      lastModified: new Date("2026-06-02"),
       changeFrequency: "monthly",
-      priority: 0.8,
+      priority: 0.6,
     },
     {
-      url: `${baseUrl}/legal`,
-      lastModified: now,
+      url: `${BASE}/privacy`,
+      lastModified: new Date("2026-06-01"),
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
-      url: `${baseUrl}/privacy`,
-      lastModified: now,
+      url: `${BASE}/legal`,
+      lastModified: new Date("2026-06-01"),
       changeFrequency: "yearly",
       priority: 0.3,
     },

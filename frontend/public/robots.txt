@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /dashboard/
 Disallow: /api/
+Disallow: /auth/
 
-Sitemap: https://botforge.app/sitemap.xml
+Sitemap: https://www.botexpress.fr/sitemap.xml
