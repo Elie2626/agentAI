@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import stripe
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -8,6 +9,8 @@ from app.core.firebase import get_db
 from app.core.config import get_settings, PLAN_LIMITS
 from app.models.schemas import CreateCheckoutRequest
 from app.services.usage import get_usage_count, get_billing_period
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/billing", tags=["billing"])
 
@@ -81,8 +84,13 @@ async def create_checkout_session(
     has_used_trial = user_data.get("has_used_trial", False)
     price_id = _get_price_id(body.plan.value, body.billing.value)
 
+    referral_code = (body.referral_code or "").strip()[:32]
     sub_data: dict = {
-        "metadata": {"firebase_uid": user["uid"], "plan": body.plan.value},
+        "metadata": {
+            "firebase_uid": user["uid"],
+            "plan": body.plan.value,
+            "referral_code": referral_code,  # stored here for invoice.payment_succeeded
+        },
     }
     if not has_used_trial:
         sub_data["trial_period_days"] = 7
@@ -178,26 +186,44 @@ async def stripe_webhook(request: Request):
                             try:
                                 pm = s.PaymentMethod.retrieve(dpm)
                                 fingerprint = pm.get("card", {}).get("fingerprint")
-                            except Exception:
-                                pass
+                            except stripe.error.StripeError as e:
+                                logger.warning("Could not retrieve payment method: %s", e)
 
                         if fingerprint:
-                            fp_doc = db.collection("trial_fingerprints").document(fingerprint).get()
-                            if fp_doc.exists and fp_doc.to_dict().get("uid") != uid:
-                                # Same card used before on another account → end trial immediately
-                                try:
+                            fp_ref = db.collection("trial_fingerprints").document(fingerprint)
+
+                            # Atomic check-and-set using Firestore transaction
+                            # Prevents race condition when two accounts with the same card
+                            # complete checkout at the same time
+                            try:
+                                from google.cloud.firestore_v1 import transactional as fs_transactional
+
+                                @fs_transactional
+                                def _claim_fp(txn):
+                                    snap = fp_ref.get(transaction=txn)
+                                    if snap.exists:
+                                        return snap.to_dict().get("uid")
+                                    txn.set(fp_ref, {
+                                        "fingerprint": fingerprint,
+                                        "uid": uid,
+                                        "used_at": now.isoformat(),
+                                    })
+                                    return None
+
+                                txn = db.transaction()
+                                previous_uid = _claim_fp(txn)
+
+                                if previous_uid is not None and previous_uid != uid:
+                                    # Card already used for a trial on another account
                                     s.Subscription.modify(sub_id, trial_end="now")
                                     sub_status = "active"
                                     trial_was_offered = False
-                                except Exception:
-                                    pass
-                            elif not fp_doc.exists:
-                                # First time this card is used for a trial → record it
-                                db.collection("trial_fingerprints").document(fingerprint).set({
-                                    "fingerprint": fingerprint,
-                                    "uid": uid,
-                                    "used_at": now.isoformat(),
-                                })
+                                    logger.warning(
+                                        "Trial terminated: fingerprint %s already used by uid=%s, current uid=%s",
+                                        fingerprint, previous_uid, uid,
+                                    )
+                            except Exception as e:
+                                logger.error("Fingerprint transaction failed: %s", e)
 
                     if sub.get("trial_end") and sub_status == "trialing":
                         trial_end = datetime.fromtimestamp(
@@ -230,27 +256,64 @@ async def stripe_webhook(request: Request):
                 "billing_anchor_day": now.day,
             }, merge=True)
 
-            # Handle referral commission
-            if referral_code:
-                referrers = list(
-                    db.collection("users")
-                    .where("referral_code", "==", referral_code)
-                    .limit(1)
-                    .stream()
+            # NOTE: referral commission is handled in invoice.payment_succeeded
+            # to ensure the referred user actually paid (not just started a trial)
+
+    elif event["type"] == "invoice.payment_succeeded":
+        invoice = event["data"]["object"]
+        # Only process actual charges (not $0 trial start invoices)
+        if invoice.get("amount_paid", 0) == 0:
+            return {"status": "ok"}
+
+        sub_id = invoice.get("subscription")
+        if not sub_id:
+            return {"status": "ok"}
+
+        try:
+            sub = s.Subscription.retrieve(sub_id)
+            meta = sub.get("metadata", {})
+            referred_uid = meta.get("firebase_uid", "")
+            referral_code = meta.get("referral_code", "")
+            plan = meta.get("plan", "")
+
+            if not (referred_uid and referral_code and plan):
+                return {"status": "ok"}
+
+            # Ensure commission not already given for this user
+            existing = list(
+                db.collection("commissions")
+                .where("referred_uid", "==", referred_uid)
+                .limit(1)
+                .stream()
+            )
+            if existing:
+                return {"status": "ok"}  # already credited
+
+            referrers = list(
+                db.collection("users")
+                .where("referral_code", "==", referral_code)
+                .limit(1)
+                .stream()
+            )
+            if referrers and referrers[0].id != referred_uid:
+                referrer_uid = referrers[0].id
+                plan_amount = PLAN_PRICES.get(plan, 0)
+                commission = round(plan_amount * 0.10, 2)
+                db.collection("commissions").add({
+                    "referrer_uid": referrer_uid,
+                    "referred_uid": referred_uid,
+                    "plan": plan,
+                    "amount": plan_amount,
+                    "commission": commission,
+                    "status": "pending",
+                    "created_at": now.isoformat(),
+                })
+                logger.info(
+                    "Commission %.2f€ credited to %s for referred user %s",
+                    commission, referrer_uid, referred_uid,
                 )
-                if referrers and referrers[0].id != uid:
-                    referrer_uid = referrers[0].id
-                    plan_amount = PLAN_PRICES.get(plan, 0)
-                    commission = round(plan_amount * 0.10, 2)
-                    db.collection("commissions").add({
-                        "referrer_uid": referrer_uid,
-                        "referred_uid": uid,
-                        "plan": plan,
-                        "amount": plan_amount,
-                        "commission": commission,
-                        "status": "pending",
-                        "created_at": now.isoformat(),
-                    })
+        except stripe.error.StripeError as e:
+            logger.error("invoice.payment_succeeded stripe error: %s", e)
 
     elif event["type"] == "customer.subscription.updated":
         subscription = event["data"]["object"]
