@@ -30,6 +30,9 @@ import {
   Briefcase,
   Clock,
   CheckCircle2,
+  Download,
+  Copy,
+  Puzzle,
 } from "lucide-react";
 
 /* ───────── DATA ───────── */
@@ -327,6 +330,114 @@ export default function LandingPage() {
                 <p className="text-muted-foreground">{item.desc}</p>
               </Reveal>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Integrations ── */}
+      <section className="px-4 py-16 sm:py-24 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <Reveal className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Compatible avec tous vos outils</h2>
+            <p className="mt-4 text-lg text-muted-foreground">HTML, WordPress, Shopify — intégrez votre chatbot en moins de 2 minutes, sans aucune connaissance technique.</p>
+          </Reveal>
+          <div className="mt-10 grid gap-6 sm:mt-16 lg:grid-cols-3">
+            {/* HTML */}
+            <Reveal>
+              <div className="flex h-full flex-col rounded-2xl border bg-card p-6">
+                <div className="mb-5 flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
+                    <Code2 className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">HTML / Tout site</p>
+                    <p className="text-xs text-muted-foreground">Site statique, Webflow, Wix…</p>
+                  </div>
+                </div>
+                <ol className="flex-1 space-y-3">
+                  {[
+                    { n: "1", text: "Créez votre chatbot depuis le dashboard botexpress" },
+                    { n: "2", text: "Copiez le script généré automatiquement (1 ligne)" },
+                    { n: "3", text: "Collez-le avant </body> dans le code de votre site" },
+                    { n: "4", text: "Sauvegardez — votre chatbot est en ligne" },
+                  ].map((s) => (
+                    <li key={s.n} className="flex items-start gap-3 text-sm">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">{s.n}</span>
+                      <span className="text-muted-foreground">{s.text}</span>
+                    </li>
+                  ))}
+                </ol>
+                <div className="mt-6 rounded-xl bg-muted/60 px-4 py-3 font-mono text-xs text-muted-foreground">
+                  <span className="text-primary">&lt;script</span> src=&quot;botexpress.fr/widget.js&quot;<br />
+                  &nbsp;&nbsp;data-chatbot-id=&quot;<span className="text-amber-500">votre-id</span>&quot;<br />
+                  <span className="text-primary">&gt;&lt;/script&gt;</span>
+                </div>
+              </div>
+            </Reveal>
+
+            {/* WordPress */}
+            <Reveal>
+              <div className="flex h-full flex-col rounded-2xl border bg-card p-6">
+                <div className="mb-5 flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-500/10">
+                    <Puzzle className="h-5 w-5 text-blue-500" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">WordPress</p>
+                    <p className="text-xs text-muted-foreground">Plugin officiel botexpress</p>
+                  </div>
+                </div>
+                <ol className="flex-1 space-y-3">
+                  {[
+                    { n: "1", text: "Allez dans votre dashboard → Intégration → Télécharger le plugin WordPress" },
+                    { n: "2", text: "WP Admin → Extensions → Ajouter → Téléverser le fichier .zip" },
+                    { n: "3", text: "Activez le plugin" },
+                    { n: "4", text: "Réglages → botexpress → collez votre Chatbot ID → Sauvegardez" },
+                  ].map((s) => (
+                    <li key={s.n} className="flex items-start gap-3 text-sm">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-xs font-bold text-blue-500">{s.n}</span>
+                      <span className="text-muted-foreground">{s.text}</span>
+                    </li>
+                  ))}
+                </ol>
+                <div className="mt-6 flex items-center gap-2 rounded-xl bg-blue-500/5 border border-blue-500/20 px-4 py-3 text-sm">
+                  <Download className="h-4 w-4 shrink-0 text-blue-500" />
+                  <span className="text-blue-600 dark:text-blue-400 font-medium">Plugin disponible dans votre dashboard</span>
+                </div>
+              </div>
+            </Reveal>
+
+            {/* Shopify */}
+            <Reveal>
+              <div className="flex h-full flex-col rounded-2xl border bg-card p-6">
+                <div className="mb-5 flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/10">
+                    <ShoppingCart className="h-5 w-5 text-emerald-500" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">Shopify</p>
+                    <p className="text-xs text-muted-foreground">Snippet liquid prêt à l&apos;emploi</p>
+                  </div>
+                </div>
+                <ol className="flex-1 space-y-3">
+                  {[
+                    { n: "1", text: "Dashboard → Intégration → Copier le snippet Shopify" },
+                    { n: "2", text: "Shopify Admin → Boutique en ligne → Thèmes → Modifier le code" },
+                    { n: "3", text: "Ouvrez layout/theme.liquid" },
+                    { n: "4", text: "Collez le snippet juste avant </body> et sauvegardez" },
+                  ].map((s) => (
+                    <li key={s.n} className="flex items-start gap-3 text-sm">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/10 text-xs font-bold text-emerald-500">{s.n}</span>
+                      <span className="text-muted-foreground">{s.text}</span>
+                    </li>
+                  ))}
+                </ol>
+                <div className="mt-6 flex items-center gap-2 rounded-xl bg-emerald-500/5 border border-emerald-500/20 px-4 py-3 text-sm">
+                  <Copy className="h-4 w-4 shrink-0 text-emerald-500" />
+                  <span className="text-emerald-600 dark:text-emerald-400 font-medium">Code copié en 1 clic depuis votre dashboard</span>
+                </div>
+              </div>
+            </Reveal>
           </div>
         </div>
       </section>

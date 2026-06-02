@@ -415,24 +415,45 @@ export default function ChatbotDetailPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* WordPress */}
-                  <div className="flex items-center justify-between gap-4 rounded-lg border p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/10">
-                        <svg className="h-5 w-5 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 1.542c1.58 0 3.056.46 4.295 1.252L5.794 16.295A8.453 8.453 0 013.542 12c0-4.669 3.789-8.458 8.458-8.458zm0 16.916a8.414 8.414 0 01-4.295-1.252l10.501-12.501A8.453 8.453 0 0120.458 12c0 4.669-3.789 8.458-8.458 8.458z"/>
-                        </svg>
+                  <div className="rounded-lg border p-4 space-y-3">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/10">
+                          <svg className="h-5 w-5 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 1.542c1.58 0 3.056.46 4.295 1.252L5.794 16.295A8.453 8.453 0 013.542 12c0-4.669 3.789-8.458 8.458-8.458zm0 16.916a8.414 8.414 0 01-4.295-1.252l10.501-12.501A8.453 8.453 0 0120.458 12c0 4.669-3.789 8.458-8.458 8.458z"/>
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">WordPress</p>
+                          <p className="text-xs text-muted-foreground">Plugin à installer via Extensions → Ajouter</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm font-medium">WordPress</p>
-                        <p className="text-xs text-muted-foreground">Plugin à installer via Extensions → Ajouter</p>
+                      <Button size="sm" variant="outline" asChild>
+                        <a href="/botexpress-chatbot.zip" download>
+                          <Download className="h-3.5 w-3.5 mr-1.5" />
+                          Télécharger
+                        </a>
+                      </Button>
+                    </div>
+                    <div>
+                      <p className="mb-1.5 text-xs font-medium text-muted-foreground">Votre Chatbot ID (à coller dans Réglages → botexpress) :</p>
+                      <div className="relative">
+                        <pre className="overflow-x-auto rounded-lg bg-foreground/5 px-3 py-2 text-xs">
+                          <code>{chatbot.id}</code>
+                        </pre>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className="absolute right-2 top-1/2 -translate-y-1/2"
+                          onClick={() => {
+                            navigator.clipboard.writeText(chatbot.id);
+                            toast.success("Chatbot ID copié !");
+                          }}
+                        >
+                          <Copy className="h-3.5 w-3.5" />
+                        </Button>
                       </div>
                     </div>
-                    <Button size="sm" variant="outline" asChild>
-                      <a href="/botexpress-chatbot.zip" download>
-                        <Download className="h-3.5 w-3.5 mr-1.5" />
-                        Télécharger
-                      </a>
-                    </Button>
                   </div>
                   {/* Shopify */}
                   <div className="rounded-lg border p-4 space-y-3">
