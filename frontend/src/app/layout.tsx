@@ -4,6 +4,7 @@ import Script from "next/script";
 import "@/styles/globals.css";
 import { Toaster } from "react-hot-toast";
 import { I18nProvider } from "@/i18n";
+import { CookieBanner } from "@/components/cookie-banner";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans" });
 
@@ -97,6 +98,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             style: { borderRadius: "0.75rem", fontSize: "0.875rem" },
           }}
         />
+        <CookieBanner />
         <Script
           src="https://www.botexpress.fr/widget.js"
           data-chatbot-id="781ac196-e8e1-4086-adfa-ddfe42bd7916"
