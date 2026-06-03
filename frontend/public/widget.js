@@ -60,21 +60,15 @@
     return d.innerHTML;
   }
 
-  /* Returns true if the page is currently in dark mode (reads DOM at call time) */
+  /* Returns true if the page has an explicit dark class/attribute */
   function isPageDark() {
     var html = document.documentElement;
-    if (
+    return (
       html.classList.contains("dark") ||
       html.getAttribute("data-theme") === "dark" ||
       html.getAttribute("data-color-scheme") === "dark" ||
       html.getAttribute("data-bs-theme") === "dark"
-    ) return true;
-    if (
-      html.classList.contains("light") ||
-      html.getAttribute("data-theme") === "light" ||
-      html.getAttribute("data-color-scheme") === "light"
-    ) return false;
-    return !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    );
   }
 
   /* ── Init ── */
@@ -224,29 +218,6 @@
       dSel(".bf-powered") + "{background:#1e1f2e!important;color:#6b7280!important}\n" +
       dSel(".bf-powered a") + "{color:#6b7280!important}\n" +
 
-      /* ════════════════════════════════════════════════
-         DARK MODE — system preference fallback
-         Used when the page has no dark class but the user's OS is dark.
-         :root:not(.light) avoids conflicting with explicit light mode.
-         ════════════════════════════════════════════════ */
-      "@media(prefers-color-scheme:dark){\n" +
-      ":root:not(.light):not([data-theme=light]):not([data-color-scheme=light]) .bf-chat" +
-        "{background:#1e1f2e!important;color:#e5e7eb!important}\n" +
-      ":root:not(.light):not([data-theme=light]):not([data-color-scheme=light]) .bf-messages" +
-        "{background:#1e1f2e!important}\n" +
-      ":root:not(.light):not([data-theme=light]):not([data-color-scheme=light]) .bf-msg-assistant" +
-        "{background:#2d2f42!important;color:#e5e7eb!important}\n" +
-      ":root:not(.light):not([data-theme=light]):not([data-color-scheme=light]) .bf-typing" +
-        "{background:#2d2f42!important}\n" +
-      ":root:not(.light):not([data-theme=light]):not([data-color-scheme=light]) .bf-input-area" +
-        "{background:#1e1f2e!important;border-top-color:#374151!important}\n" +
-      ":root:not(.light):not([data-theme=light]):not([data-color-scheme=light]) .bf-input" +
-        "{background:#2d2f42!important;color:#e5e7eb!important;border-color:#4b5563!important}\n" +
-      ":root:not(.light):not([data-theme=light]):not([data-color-scheme=light]) .bf-powered" +
-        "{background:#1e1f2e!important;color:#6b7280!important}\n" +
-      ":root:not(.light):not([data-theme=light]):not([data-color-scheme=light]) .bf-powered a" +
-        "{color:#6b7280!important}\n" +
-      "}\n" +
 
       "@media(prefers-reduced-motion:reduce){.bf-chat{animation:none}.bf-toggle{transition:none}}\n";
 
