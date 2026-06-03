@@ -267,25 +267,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Demo video ── */}
-      <Reveal>
-        <section className="px-4 pb-16 sm:pb-24 sm:px-6 lg:px-8 -mt-4">
-          <div className="mx-auto max-w-5xl">
-            <div className="overflow-hidden rounded-2xl border bg-card shadow-2xl">
-              <video
-                autoPlay
-                muted
-                loop
-                playsInline
-                className="w-full"
-                poster=""
-              >
-                <source src="/demo.mp4" type="video/mp4" />
-              </video>
-            </div>
-          </div>
-        </section>
-      </Reveal>
+      
 
       {/* ── Social proof bar ── */}
       <section className="border-y bg-muted/30 px-4 py-6 sm:px-6 lg:px-8">
@@ -353,6 +335,25 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* ── Demo video ── */}
+      <Reveal>
+        <section className="px-4 pb-16 sm:pb-24 sm:px-6 lg:px-8 -mt-4">
+          <div className="mx-auto max-w-5xl">
+            <div className="overflow-hidden rounded-2xl border bg-card shadow-2xl">
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="w-full"
+              >
+                <source src="/demo.mp4" type="video/mp4" />
+              </video>
+            </div>
+          </div>
+        </section>
+      </Reveal>
 
       {/* ── Integrations ── */}
       <section className="px-4 py-16 sm:py-24 sm:px-6 lg:px-8">
