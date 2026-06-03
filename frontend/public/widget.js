@@ -94,7 +94,9 @@
       ".bf-toggle{width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(0,0,0,0.16);transition:transform 0.2s ease,box-shadow 0.2s ease;background:" + pc + "}\n" +
       ".bf-toggle:hover{transform:scale(1.05);box-shadow:0 6px 32px rgba(0,0,0,0.2)}\n" +
       ".bf-toggle svg{width:24px;height:24px;fill:none;stroke:" + tc + ";stroke-width:2;stroke-linecap:round;stroke-linejoin:round}\n" +
-      ".bf-chat{width:" + size.width + ";max-width:calc(100vw - 40px);height:" + size.height + ";max-height:calc(100dvh - 100px);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,0.16);background:#fff;animation:bf-slide-up 0.25s ease-out}\n" +
+      /* Widget always uses light theme regardless of page dark mode.
+         All colors are explicit to prevent inheritance from the host page. */
+      ".bf-chat{width:" + size.width + ";max-width:calc(100vw - 40px);height:" + size.height + ";max-height:calc(100dvh - 100px);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,0.16);background:#ffffff;color:#111827;animation:bf-slide-up 0.25s ease-out}\n" +
       "@keyframes bf-slide-up{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}\n" +
       ".bf-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:" + pc + "}\n" +
       ".bf-header-info{display:flex;align-items:center;gap:10px}\n" +
@@ -105,7 +107,7 @@
       ".bf-close{background:none;border:none;color:" + headerTextOpacity + ";cursor:pointer;padding:4px;border-radius:6px;display:flex;align-items:center;justify-content:center;transition:background 0.15s}\n" +
       ".bf-close:hover{background:" + closeHover + ";color:" + tc + "}\n" +
       ".bf-close svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}\n" +
-      ".bf-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}\n" +
+      ".bf-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;background:#ffffff}\n" +
       ".bf-msg{max-width:82%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.5;word-wrap:break-word}\n" +
       ".bf-msg-assistant{align-self:flex-start;background:#f3f4f6;color:#111827;border-bottom-left-radius:4px}\n" +
       ".bf-msg-user{align-self:flex-end;background:" + pc + ";color:" + tc + ";border-bottom-right-radius:4px}\n" +
@@ -119,15 +121,15 @@
       ".bf-typing span:nth-child(2){animation-delay:0.2s}\n" +
       ".bf-typing span:nth-child(3){animation-delay:0.4s}\n" +
       "@keyframes bf-bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}\n" +
-      ".bf-input-area{border-top:1px solid #e5e7eb;padding:12px;display:flex;gap:8px;align-items:center}\n" +
-      ".bf-input{flex:1;border:1px solid #e5e7eb;border-radius:12px;padding:10px 14px;font-size:14px;outline:none;font-family:inherit;background:#f9fafb;transition:border-color 0.15s}\n" +
+      ".bf-input-area{border-top:1px solid #e5e7eb;padding:12px;display:flex;gap:8px;align-items:center;background:#ffffff}\n" +
+      ".bf-input{flex:1;border:1px solid #e5e7eb;border-radius:12px;padding:10px 14px;font-size:14px;outline:none;font-family:inherit;background:#f9fafb;color:#111827;transition:border-color 0.15s}\n" +
       ".bf-input:focus{border-color:" + pc + ";box-shadow:0 0 0 2px " + pc + "30}\n" +
       ".bf-input::placeholder{color:#9ca3af}\n" +
       ".bf-send{width:40px;height:40px;border-radius:12px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;background:" + pc + ";transition:opacity 0.15s}\n" +
       ".bf-send:hover{opacity:0.9}\n" +
       ".bf-send:disabled{opacity:0.5;cursor:not-allowed}\n" +
       ".bf-send svg{width:18px;height:18px;fill:none;stroke:" + tc + ";stroke-width:2;stroke-linecap:round;stroke-linejoin:round}\n" +
-      ".bf-powered{text-align:center;padding:4px 0 8px;font-size:10px;color:#9ca3af}\n" +
+      ".bf-powered{text-align:center;padding:4px 0 8px;font-size:10px;color:#9ca3af;background:#ffffff}\n" +
       ".bf-powered a{color:#6b7280;text-decoration:none}\n" +
       ".bf-powered a:hover{text-decoration:underline}\n" +
       "@media(prefers-reduced-motion:reduce){.bf-chat{animation:none}.bf-toggle{transition:none}}\n";
