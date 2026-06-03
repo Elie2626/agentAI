@@ -40,6 +40,7 @@ class UpdateChatbotRequest(BaseModel):
     allowed_domains: Optional[list[str]] = None
     lead_capture_enabled: Optional[bool] = None
     lead_capture_fields: Optional[list[str]] = None  # ["name","email","phone"]
+    background_color: Optional[str] = None
 
 
 class SiteAnalysisResult(BaseModel):

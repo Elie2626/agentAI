@@ -29,6 +29,7 @@ export interface Chatbot {
   allowed_domains: string[];
   lead_capture_enabled?: boolean;
   lead_capture_fields?: string[];
+  background_color?: string;
 }
 
 export interface Usage {

@@ -14,6 +14,7 @@ import {
   ArrowLeft,
   BarChart3,
   Clock,
+  Code2,
   Copy,
   Download,
   HelpCircle,
@@ -51,6 +52,7 @@ export default function ChatbotDetailPage() {
   const [allowedDomains, setAllowedDomains] = useState<string[]>([]);
   const [newDomain, setNewDomain] = useState("");
   const [savingDomains, setSavingDomains] = useState(false);
+  const [backgroundColor, setBackgroundColor] = useState("#ffffff");
   const [leadCaptureEnabled, setLeadCaptureEnabled] = useState(false);
   const [leadCaptureFields, setLeadCaptureFields] = useState<string[]>(["name", "email"]);
   const [leads, setLeads] = useState<{ id: string; name: string; email: string; phone: string; created_at: string }[]>([]);
@@ -75,6 +77,7 @@ export default function ChatbotDetailPage() {
         setWelcomeMessage(bot.welcome_message);
         setPlaceholderText(bot.placeholder_text);
         setAllowedDomains(bot.allowed_domains ?? []);
+        setBackgroundColor(bot.background_color || "#ffffff");
         setLeadCaptureEnabled(bot.lead_capture_enabled ?? false);
         setLeadCaptureFields(bot.lead_capture_fields ?? ["name", "email"]);
         // Load leads (ignore error if none yet)
@@ -122,6 +125,7 @@ export default function ChatbotDetailPage() {
         payload.secondary_color = secondaryColor;
         payload.text_color = textColor;
         payload.widget_size = widgetSize;
+        payload.background_color = backgroundColor;
       }
       const updated = await api.updateChatbot(id, payload);
       setChatbot(updated);
@@ -192,6 +196,7 @@ export default function ChatbotDetailPage() {
     widget_size: widgetSize,
     welcome_message: welcomeMessage,
     placeholder_text: placeholderText,
+    background_color: backgroundColor !== "#ffffff" ? backgroundColor : undefined,
   };
 
   return (
@@ -321,6 +326,28 @@ export default function ChatbotDetailPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
+                  <label htmlFor="backgroundColor" className="text-sm font-medium">Couleur de fond</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      id="backgroundColor"
+                      value={backgroundColor}
+                      onChange={(e) => setBackgroundColor(e.target.value)}
+                      className="h-10 w-10 cursor-pointer rounded-lg border"
+                      disabled={!canBrand}
+                    />
+                    <Input
+                      value={backgroundColor}
+                      onChange={(e) => setBackgroundColor(e.target.value)}
+                      className="font-mono"
+                      disabled={!canBrand}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Si non modifié, le widget s&apos;adapte automatiquement au mode sombre/clair du site.
+                  </p>
+                </div>
+                <div className="space-y-2">
                   <label htmlFor="textColor" className="text-sm font-medium">Couleur du texte</label>
                   <div className="flex items-center gap-2">
                     <select
@@ -435,6 +462,32 @@ export default function ChatbotDetailPage() {
                     <Button size="sm" className="mt-4" asChild>
                       <Link href="/dashboard/billing">Voir les offres</Link>
                     </Button>
+                  </div>
+                )}
+                {usage?.can_deploy && (
+                  <div className="mt-4 rounded-xl border bg-muted/30 p-4 space-y-3">
+                    <p className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                      <Code2 className="h-3.5 w-3.5" />
+                      Où coller ce code ?
+                    </p>
+                    <div className="space-y-2.5 text-xs text-muted-foreground">
+                      <div className="flex items-start gap-2">
+                        <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded bg-orange-500/10 text-[10px] font-bold text-orange-600">H</span>
+                        <div><span className="font-medium text-foreground">HTML / site statique</span> — juste avant <code className="rounded bg-muted px-1">&lt;/body&gt;</code> dans votre fichier <code className="rounded bg-muted px-1">.html</code></div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded bg-blue-500/10 text-[10px] font-bold text-blue-600">R</span>
+                        <div><span className="font-medium text-foreground">React / Next.js</span> — dans <code className="rounded bg-muted px-1">app/layout.tsx</code> avant <code className="rounded bg-muted px-1">&lt;/body&gt;</code>, ou dans <code className="rounded bg-muted px-1">pages/_document.tsx</code></div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded bg-emerald-500/10 text-[10px] font-bold text-emerald-600">V</span>
+                        <div><span className="font-medium text-foreground">Vue.js / Nuxt</span> — dans <code className="rounded bg-muted px-1">public/index.html</code> avant <code className="rounded bg-muted px-1">&lt;/body&gt;</code>, ou via <code className="rounded bg-muted px-1">nuxt.config.ts → app.head.script</code></div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded bg-violet-500/10 text-[10px] font-bold text-violet-600">W</span>
+                        <div><span className="font-medium text-foreground">Webflow / Wix / Squarespace</span> — Paramètres du site → Code personnalisé → pied de page (avant <code className="rounded bg-muted px-1">&lt;/body&gt;</code>)</div>
+                      </div>
+                    </div>
                   </div>
                 )}
               </CardContent>

@@ -190,7 +190,7 @@ async def update_chatbot(
     limits = PLAN_LIMITS.get(plan, PLAN_LIMITS["free"])
 
     if not limits.get("custom_branding", False):
-        branding_fields = {"primary_color", "secondary_color", "text_color", "font_family", "widget_size", "avatar_url"}
+        branding_fields = {"primary_color", "secondary_color", "text_color", "font_family", "widget_size", "avatar_url", "background_color"}
         blocked = [f for f in branding_fields if f in updates]
         if blocked:
             raise HTTPException(
@@ -250,6 +250,9 @@ async def get_embed_code(chatbot_id: str):
             "placeholder_text": data.get("placeholder_text"),
             "position": data.get("position"),
             "widget_size": data.get("widget_size", "medium"),
+            "background_color": data.get("background_color", ""),
+            "lead_capture_enabled": data.get("lead_capture_enabled", False),
+            "lead_capture_fields": data.get("lead_capture_fields", ["name", "email"]),
         },
     }
 

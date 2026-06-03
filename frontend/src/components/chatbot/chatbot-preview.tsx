@@ -57,6 +57,10 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
       : getContrastColor(primaryColor);
   const size = SIZE_MAP[chatbot.widget_size] || SIZE_MAP.medium;
   const isDarkText = textColor === "#111111";
+  const bgColor = chatbot.background_color || undefined;
+  const isLightBg = bgColor ? getLuminance(bgColor) > 0.5 : true;
+  const msgAsstBg = bgColor ? (isLightBg ? "#f0f0f0" : "rgba(255,255,255,0.12)") : undefined;
+  const msgAsstText = bgColor ? (isLightBg ? "#111827" : "#f3f4f6") : undefined;
 
   return (
     <div className={`relative mx-auto ${size.h} w-full max-w-sm overflow-hidden rounded-2xl border bg-background shadow-xl`}>
@@ -111,7 +115,7 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 space-y-3 overflow-y-auto p-4">
+          <div className="flex-1 space-y-3 overflow-y-auto p-4" style={bgColor ? { backgroundColor: bgColor } : undefined}>
             {messages.map((msg, i) => (
               <div
                 key={i}
@@ -121,11 +125,13 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
                   className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                     msg.role === "user"
                       ? "rounded-br-md"
-                      : "rounded-bl-md bg-muted"
+                      : "rounded-bl-md" + (bgColor ? "" : " bg-muted")
                   }`}
                   style={
                     msg.role === "user"
                       ? { backgroundColor: primaryColor, color: textColor }
+                      : bgColor
+                      ? { backgroundColor: msgAsstBg, color: msgAsstText }
                       : undefined
                   }
                 >
@@ -136,7 +142,7 @@ export function ChatbotPreview({ chatbot }: ChatbotPreviewProps) {
           </div>
 
           {/* Input */}
-          <div className="border-t p-3">
+          <div className="border-t p-3" style={bgColor ? { backgroundColor: bgColor, borderColor: isLightBg ? "#e5e7eb" : "rgba(255,255,255,0.1)" } : undefined}>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
