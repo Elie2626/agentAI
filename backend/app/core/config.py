@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     api_url: str = "http://localhost:8000"
     anthropic_api_key: str = ""
     admin_secret: str = ""
+    admin_enabled: str = "false"  # Set to "true" only in local .env
     resend_api_key: str = ""
     support_email: str = "elieamar2007@gmail.com"
 

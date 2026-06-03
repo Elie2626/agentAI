@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import time
+import hmac
+from collections import defaultdict
 from datetime import datetime, timezone
 from typing import Optional
-from fastapi import APIRouter, HTTPException, Header
+from fastapi import APIRouter, HTTPException, Header, Request
 from google.cloud.firestore_v1.base_query import FieldFilter
 from pydantic import BaseModel
 from app.core.firebase import get_db
@@ -11,16 +14,38 @@ from app.services.usage import get_billing_period
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
+# Rate limiting: max 10 attempts per IP per 60s
+_admin_attempts: dict = defaultdict(list)
+_MAX_ATTEMPTS = 10
+_WINDOW = 60
 
-def _require_admin(secret: Optional[str]):
+
+def _require_admin(secret: Optional[str], request: Request = None):
     settings = get_settings()
-    if not settings.admin_secret or secret != settings.admin_secret:
+
+    # Block entirely if not explicitly enabled (should only be true on local machine)
+    if settings.admin_enabled.lower() != "true":
+        raise HTTPException(status_code=404, detail="Not found")
+
+    # Rate limit by IP
+    if request:
+        ip = request.headers.get("x-forwarded-for", "").split(",")[0].strip() or "unknown"
+        now = time.time()
+        _admin_attempts[ip] = [t for t in _admin_attempts[ip] if t > now - _WINDOW]
+        if len(_admin_attempts[ip]) >= _MAX_ATTEMPTS:
+            raise HTTPException(status_code=429, detail="Trop de tentatives")
+        _admin_attempts[ip].append(now)
+
+    # Constant-time comparison to prevent timing attacks
+    if not settings.admin_secret or not secret:
+        raise HTTPException(status_code=401, detail="Non autorisé")
+    if not hmac.compare_digest(secret, settings.admin_secret):
         raise HTTPException(status_code=401, detail="Non autorisé")
 
 
 @router.get("/stats")
-async def admin_stats(x_admin_secret: Optional[str] = Header(default=None)):
-    _require_admin(x_admin_secret)
+async def admin_stats(request: Request, x_admin_secret: Optional[str] = Header(default=None)):
+    _require_admin(x_admin_secret, request)
     db = get_db()
 
     users = list(db.collection("users").stream())
@@ -41,8 +66,8 @@ async def admin_stats(x_admin_secret: Optional[str] = Header(default=None)):
 
 
 @router.get("/users")
-async def admin_list_users(x_admin_secret: Optional[str] = Header(default=None)):
-    _require_admin(x_admin_secret)
+async def admin_list_users(request: Request, x_admin_secret: Optional[str] = Header(default=None)):
+    _require_admin(x_admin_secret, request)
     import firebase_admin.auth as fb_auth
     db = get_db()
 
@@ -127,11 +152,12 @@ class UpdatePlanBody(BaseModel):
 
 @router.patch("/users/{uid}/plan")
 async def admin_update_plan(
+    request: Request,
     uid: str,
     body: UpdatePlanBody,
     x_admin_secret: Optional[str] = Header(default=None),
 ):
-    _require_admin(x_admin_secret)
+    _require_admin(x_admin_secret, request)
 
     if body.plan not in PLAN_LIMITS:
         raise HTTPException(status_code=400, detail="Plan invalide")
@@ -150,8 +176,8 @@ class UpdateTicketBody(BaseModel):
 
 
 @router.get("/tickets")
-async def admin_list_tickets(x_admin_secret: Optional[str] = Header(default=None)):
-    _require_admin(x_admin_secret)
+async def admin_list_tickets(request: Request, x_admin_secret: Optional[str] = Header(default=None)):
+    _require_admin(x_admin_secret, request)
     db = get_db()
     docs = list(db.collection("support_tickets").stream())
     result = []
@@ -173,11 +199,12 @@ async def admin_list_tickets(x_admin_secret: Optional[str] = Header(default=None
 
 @router.patch("/tickets/{ticket_id}/status")
 async def admin_update_ticket_status(
+    request: Request,
     ticket_id: str,
     body: UpdateTicketBody,
     x_admin_secret: Optional[str] = Header(default=None),
 ):
-    _require_admin(x_admin_secret)
+    _require_admin(x_admin_secret, request)
     if body.status not in ("open", "in_progress", "resolved"):
         raise HTTPException(status_code=400, detail="Statut invalide")
     db = get_db()
@@ -189,8 +216,8 @@ async def admin_update_ticket_status(
 
 
 @router.get("/cookies")
-async def admin_list_cookies(x_admin_secret: Optional[str] = Header(default=None)):
-    _require_admin(x_admin_secret)
+async def admin_list_cookies(request: Request, x_admin_secret: Optional[str] = Header(default=None)):
+    _require_admin(x_admin_secret, request)
     db = get_db()
     docs = list(db.collection("cookie_consents").stream())
     result = []
@@ -216,9 +243,9 @@ async def admin_list_cookies(x_admin_secret: Optional[str] = Header(default=None
 
 
 @router.get("/affiliates")
-async def admin_list_affiliates(x_admin_secret: Optional[str] = Header(default=None)):
+async def admin_list_affiliates(request: Request, x_admin_secret: Optional[str] = Header(default=None)):
     """List all users with pending commissions + their IBAN."""
-    _require_admin(x_admin_secret)
+    _require_admin(x_admin_secret, request)
     db = get_db()
 
     commissions = list(db.collection("commissions").stream())
@@ -262,11 +289,12 @@ async def admin_list_affiliates(x_admin_secret: Optional[str] = Header(default=N
 
 @router.patch("/commissions/{commission_id}/mark-paid")
 async def admin_mark_commission_paid(
+    request: Request,
     commission_id: str,
     x_admin_secret: Optional[str] = Header(default=None),
 ):
     """Mark a commission as paid."""
-    _require_admin(x_admin_secret)
+    _require_admin(x_admin_secret, request)
     db = get_db()
     ref = db.collection("commissions").document(commission_id)
     if not ref.get().exists:
@@ -277,10 +305,11 @@ async def admin_mark_commission_paid(
 
 @router.delete("/users/{uid}")
 async def admin_delete_user(
+    request: Request,
     uid: str,
     x_admin_secret: Optional[str] = Header(default=None),
 ):
-    _require_admin(x_admin_secret)
+    _require_admin(x_admin_secret, request)
     db = get_db()
     ref = db.collection("users").document(uid)
     if not ref.get().exists:
