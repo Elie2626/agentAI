@@ -77,7 +77,7 @@ export default function ChatbotDetailPage() {
         setWelcomeMessage(bot.welcome_message);
         setPlaceholderText(bot.placeholder_text);
         setAllowedDomains(bot.allowed_domains ?? []);
-        setBackgroundColor(bot.background_color || "#ffffff");
+        setBackgroundColor(bot.background_color || "");
         setLeadCaptureEnabled(bot.lead_capture_enabled ?? false);
         setLeadCaptureFields(bot.lead_capture_fields ?? ["name", "email"]);
         // Load leads (ignore error if none yet)
@@ -125,7 +125,7 @@ export default function ChatbotDetailPage() {
         payload.secondary_color = secondaryColor;
         payload.text_color = textColor;
         payload.widget_size = widgetSize;
-        payload.background_color = backgroundColor;
+        payload.background_color = backgroundColor; // "" = auto, "#rrggbb" = custom
       }
       const updated = await api.updateChatbot(id, payload);
       setChatbot(updated);
@@ -326,26 +326,44 @@ export default function ChatbotDetailPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="backgroundColor" className="text-sm font-medium">Couleur de fond</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      id="backgroundColor"
-                      value={backgroundColor}
-                      onChange={(e) => setBackgroundColor(e.target.value)}
-                      className="h-10 w-10 cursor-pointer rounded-lg border"
-                      disabled={!canBrand}
-                    />
-                    <Input
-                      value={backgroundColor}
-                      onChange={(e) => setBackgroundColor(e.target.value)}
-                      className="font-mono"
-                      disabled={!canBrand}
-                    />
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium">Couleur de fond</label>
+                    <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+                      <span>Personnalisée</span>
+                      <button
+                        role="switch"
+                        aria-checked={backgroundColor !== ""}
+                        disabled={!canBrand}
+                        onClick={() => setBackgroundColor(backgroundColor !== "" ? "" : "#ffffff")}
+                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${backgroundColor !== "" ? "bg-primary" : "bg-muted-foreground/30"} ${!canBrand ? "opacity-50" : ""}`}
+                      >
+                        <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${backgroundColor !== "" ? "translate-x-5" : "translate-x-0.5"}`} />
+                      </button>
+                    </label>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Si non modifié, le widget s&apos;adapte automatiquement au mode sombre/clair du site.
-                  </p>
+                  {backgroundColor !== "" ? (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        id="backgroundColor"
+                        value={backgroundColor}
+                        onChange={(e) => setBackgroundColor(e.target.value)}
+                        className="h-10 w-10 cursor-pointer rounded-lg border"
+                        disabled={!canBrand}
+                      />
+                      <Input
+                        value={backgroundColor}
+                        onChange={(e) => setBackgroundColor(e.target.value)}
+                        className="font-mono"
+                        disabled={!canBrand}
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 rounded-lg border bg-muted/30 px-3 py-2">
+                      <div className="h-4 w-4 rounded-full border border-dashed border-muted-foreground/40" />
+                      <span className="text-xs text-muted-foreground">Auto — suit la couleur de fond de votre site</span>
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="textColor" className="text-sm font-medium">Couleur du texte</label>

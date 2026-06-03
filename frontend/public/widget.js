@@ -49,9 +49,35 @@
   }
 
   function detectDark() {
-    // Only auto-switch if no custom background_color set
-    prefersDark = !config.background_color &&
-      !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    // If user set a custom background_color, no auto-detection needed
+    if (config.background_color) { prefersDark = false; return; }
+
+    // Try to read the actual page background color first
+    try {
+      var el = document.documentElement;
+      var bg = window.getComputedStyle(el).backgroundColor;
+      // Also check body if html has transparent bg
+      if (!bg || bg === "rgba(0, 0, 0, 0)" || bg === "transparent") {
+        bg = window.getComputedStyle(document.body).backgroundColor;
+      }
+      var m = bg && bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+      if (m) {
+        var r = parseInt(m[1]), g = parseInt(m[2]), b = parseInt(m[3]);
+        // Ignore transparent (rgba with alpha=0)
+        var isTransparent = bg.indexOf("rgba") !== -1 && bg.match(/,\s*0\s*\)/);
+        if (!isTransparent && !(r === 0 && g === 0 && b === 0)) {
+          var rL = r/255, gL = g/255, bL = b/255;
+          rL = rL <= 0.03928 ? rL/12.92 : Math.pow((rL+0.055)/1.055, 2.4);
+          gL = gL <= 0.03928 ? gL/12.92 : Math.pow((gL+0.055)/1.055, 2.4);
+          bL = bL <= 0.03928 ? bL/12.92 : Math.pow((bL+0.055)/1.055, 2.4);
+          prefersDark = (0.2126*rL + 0.7152*gL + 0.0722*bL) < 0.4;
+          return;
+        }
+      }
+    } catch(e) {}
+
+    // Fallback: use system preference
+    prefersDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
   }
 
   function getThemeColors() {
@@ -99,8 +125,8 @@
     fetchConfig().then(function (cfg) {
       config = cfg;
       detectDark();
-      // Listen for system dark mode changes (only when no custom background)
-      if (window.matchMedia) {
+      // Listen for system dark mode changes as fallback (only when no custom background)
+      if (window.matchMedia && !config.background_color) {
         window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function() {
           detectDark();
           var old = document.getElementById("bf-styles");
