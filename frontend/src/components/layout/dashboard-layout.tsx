@@ -44,6 +44,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     if (!loading && !user) {
       router.push("/auth/login");
     }
+    // Create Firestore user document on first dashboard visit
+    if (!loading && user) {
+      import("@/lib/api").then(({ api }) => api.getMe().catch(() => {}));
+    }
   }, [user, loading, router]);
 
   if (loading) {

@@ -46,6 +46,15 @@ async def admin_list_users(x_admin_secret: Optional[str] = Header(default=None))
     import firebase_admin.auth as fb_auth
     db = get_db()
 
+    # --- 1. Get ALL Firebase Auth users ---
+    all_auth_users: dict = {}
+    try:
+        page = fb_auth.list_users()
+        for u in page.users:
+            all_auth_users[u.uid] = u.email or ""
+    except Exception:
+        pass
+
     user_docs = list(db.collection("users").stream())
     chatbot_docs = list(db.collection("chatbots").stream())
 
@@ -66,40 +75,44 @@ async def admin_list_users(x_admin_secret: Optional[str] = Header(default=None))
         if period.startswith(period_key_month):
             usage_map[uid] = usage_map.get(uid, 0) + d.get("messages", 0)
 
-    # Collect UIDs missing email in Firestore and fetch from Firebase Auth
-    missing_email_uids = []
-    firestore_data = {}
+    # --- 2. Build result from Firestore docs ---
+    result = []
+    seen_uids = set()
+
     for doc in user_docs:
         data = doc.to_dict()
-        firestore_data[doc.id] = data
-        if not data.get("email"):
-            missing_email_uids.append(doc.id)
-
-    # Batch fetch from Firebase Auth for users without email in Firestore
-    auth_emails: dict = {}
-    for i in range(0, len(missing_email_uids), 100):
-        batch = missing_email_uids[i:i+100]
-        try:
-            identifiers = [fb_auth.UidIdentifier(uid) for uid in batch]
-            result_batch = fb_auth.get_users(identifiers)
-            for u in result_batch.users:
-                if u.email:
-                    auth_emails[u.uid] = u.email
-                    # Backfill email in Firestore so next call doesn't need Auth lookup
-                    db.collection("users").document(u.uid).set(
-                        {"email": u.email}, merge=True
-                    )
-        except Exception:
-            pass
-
-    result = []
-    for uid, data in firestore_data.items():
-        email = data.get("email") or auth_emails.get(uid, "")
+        uid = doc.id
+        seen_uids.add(uid)
+        email = data.get("email") or all_auth_users.get(uid, "")
+        # Backfill email if missing
+        if not data.get("email") and email:
+            db.collection("users").document(uid).set({"email": email}, merge=True)
         result.append({
             "uid": uid,
             "email": email,
             "plan": data.get("plan", "free"),
             "created_at": data.get("created_at", ""),
+            "chatbot_count": chatbot_counts.get(uid, 0),
+            "messages_used": usage_map.get(uid, 0),
+        })
+
+    # --- 3. Add Firebase Auth users who have NO Firestore doc ---
+    for uid, email in all_auth_users.items():
+        if uid in seen_uids:
+            continue
+        # Create minimal Firestore doc so they appear next time too
+        now_iso = datetime.now(timezone.utc).isoformat()
+        db.collection("users").document(uid).set({
+            "uid": uid,
+            "email": email,
+            "plan": "free",
+            "created_at": now_iso,
+        }, merge=True)
+        result.append({
+            "uid": uid,
+            "email": email,
+            "plan": "free",
+            "created_at": now_iso,
             "chatbot_count": chatbot_counts.get(uid, 0),
             "messages_used": usage_map.get(uid, 0),
         })
