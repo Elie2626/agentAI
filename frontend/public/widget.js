@@ -52,21 +52,38 @@
     // If user set a custom background_color, no auto-detection needed
     if (config.background_color) { prefersDark = false; return; }
 
-    // Try to read the actual page background color first
+    // 1. Check for dark class / data-theme on <html> or <body> (Tailwind, next-themes, etc.)
+    var html = document.documentElement;
+    var body = document.body;
+    if (
+      html.classList.contains("dark") ||
+      html.getAttribute("data-theme") === "dark" ||
+      html.getAttribute("data-color-scheme") === "dark" ||
+      body.classList.contains("dark")
+    ) {
+      prefersDark = true;
+      return;
+    }
+    if (
+      html.classList.contains("light") ||
+      html.getAttribute("data-theme") === "light" ||
+      html.getAttribute("data-color-scheme") === "light"
+    ) {
+      prefersDark = false;
+      return;
+    }
+
+    // 2. Try to read the actual computed background color
     try {
-      var el = document.documentElement;
-      var bg = window.getComputedStyle(el).backgroundColor;
-      // Also check body if html has transparent bg
+      var bg = window.getComputedStyle(html).backgroundColor;
       if (!bg || bg === "rgba(0, 0, 0, 0)" || bg === "transparent") {
-        bg = window.getComputedStyle(document.body).backgroundColor;
+        bg = window.getComputedStyle(body).backgroundColor;
       }
-      var m = bg && bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+      var m = bg && bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\s*\)/);
       if (m) {
-        var r = parseInt(m[1]), g = parseInt(m[2]), b = parseInt(m[3]);
-        // Ignore transparent (rgba with alpha=0)
-        var isTransparent = bg.indexOf("rgba") !== -1 && bg.match(/,\s*0\s*\)/);
-        if (!isTransparent && !(r === 0 && g === 0 && b === 0)) {
-          var rL = r/255, gL = g/255, bL = b/255;
+        var alpha = m[4] !== undefined ? parseFloat(m[4]) : 1;
+        if (alpha > 0.1) {
+          var rL = parseInt(m[1])/255, gL = parseInt(m[2])/255, bL = parseInt(m[3])/255;
           rL = rL <= 0.03928 ? rL/12.92 : Math.pow((rL+0.055)/1.055, 2.4);
           gL = gL <= 0.03928 ? gL/12.92 : Math.pow((gL+0.055)/1.055, 2.4);
           bL = bL <= 0.03928 ? bL/12.92 : Math.pow((bL+0.055)/1.055, 2.4);
@@ -76,8 +93,20 @@
       }
     } catch(e) {}
 
-    // Fallback: use system preference
+    // 3. Fallback: system preference
     prefersDark = !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  }
+
+  function refreshTheme() {
+    if (config.background_color) return;
+    var wasDark = prefersDark;
+    detectDark();
+    if (wasDark !== prefersDark) {
+      var old = document.getElementById("bf-styles");
+      if (old) old.remove();
+      injectStyles();
+      if (container) render();
+    }
   }
 
   function getThemeColors() {
@@ -125,15 +154,27 @@
     fetchConfig().then(function (cfg) {
       config = cfg;
       detectDark();
-      // Listen for system dark mode changes as fallback (only when no custom background)
-      if (window.matchMedia && !config.background_color) {
-        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function() {
-          detectDark();
-          var old = document.getElementById("bf-styles");
-          if (old) old.remove();
-          injectStyles();
-          if (container) render();
-        });
+      if (!config.background_color) {
+        // Watch for class/attribute changes on <html> (Tailwind dark mode, next-themes, etc.)
+        if (window.MutationObserver) {
+          var themeObserver = new MutationObserver(function() {
+            refreshTheme();
+          });
+          themeObserver.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ["class", "data-theme", "data-color-scheme", "style"]
+          });
+          themeObserver.observe(document.body, {
+            attributes: true,
+            attributeFilter: ["class", "style"]
+          });
+        }
+        // Also listen for system-level preference changes
+        if (window.matchMedia) {
+          window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function() {
+            refreshTheme();
+          });
+        }
       }
       leadCaptured = !!localStorage.getItem("bf_lead_" + chatbotId);
       messages = [{ role: "assistant", content: config.welcome_message || "Bonjour ! Comment puis-je vous aider ?" }];
