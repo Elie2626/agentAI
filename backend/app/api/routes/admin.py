@@ -43,6 +43,7 @@ async def admin_stats(x_admin_secret: Optional[str] = Header(default=None)):
 @router.get("/users")
 async def admin_list_users(x_admin_secret: Optional[str] = Header(default=None)):
     _require_admin(x_admin_secret)
+    import firebase_admin.auth as fb_auth
     db = get_db()
 
     user_docs = list(db.collection("users").stream())
@@ -65,13 +66,38 @@ async def admin_list_users(x_admin_secret: Optional[str] = Header(default=None))
         if period.startswith(period_key_month):
             usage_map[uid] = usage_map.get(uid, 0) + d.get("messages", 0)
 
-    result = []
+    # Collect UIDs missing email in Firestore and fetch from Firebase Auth
+    missing_email_uids = []
+    firestore_data = {}
     for doc in user_docs:
         data = doc.to_dict()
-        uid = doc.id
+        firestore_data[doc.id] = data
+        if not data.get("email"):
+            missing_email_uids.append(doc.id)
+
+    # Batch fetch from Firebase Auth for users without email in Firestore
+    auth_emails: dict = {}
+    for i in range(0, len(missing_email_uids), 100):
+        batch = missing_email_uids[i:i+100]
+        try:
+            identifiers = [fb_auth.UidIdentifier(uid) for uid in batch]
+            result_batch = fb_auth.get_users(identifiers)
+            for u in result_batch.users:
+                if u.email:
+                    auth_emails[u.uid] = u.email
+                    # Backfill email in Firestore so next call doesn't need Auth lookup
+                    db.collection("users").document(u.uid).set(
+                        {"email": u.email}, merge=True
+                    )
+        except Exception:
+            pass
+
+    result = []
+    for uid, data in firestore_data.items():
+        email = data.get("email") or auth_emails.get(uid, "")
         result.append({
             "uid": uid,
-            "email": data.get("email", ""),
+            "email": email,
             "plan": data.get("plan", "free"),
             "created_at": data.get("created_at", ""),
             "chatbot_count": chatbot_counts.get(uid, 0),
