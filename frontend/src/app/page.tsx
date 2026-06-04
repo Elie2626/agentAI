@@ -177,6 +177,7 @@ export default function LandingPage() {
             <a href="#features" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav_features")}</a>
             <a href="#pricing" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav_pricing")}</a>
             <a href="#faq" className="text-sm text-muted-foreground transition-colors hover:text-foreground">{t("nav_faq")}</a>
+            <Link href="/blog" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Blog</Link>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
             <ThemeToggle />
