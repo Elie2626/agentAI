@@ -29,12 +29,12 @@ const I18nContext = createContext<I18nContextType>({
 });
 
 export function I18nProvider({ children }: { children: ReactNode }) {
+  // Default "fr" — works on SSR and first render, no hydration mismatch
   const [locale, setLocaleState] = useState<Locale>("fr");
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // Detect real locale client-side after hydration
     setLocaleState(detectLocale());
-    setMounted(true);
   }, []);
 
   function setLocale(l: Locale) {
@@ -47,10 +47,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     return dictionaries[locale]?.[key] || dictionaries.fr[key] || key;
   }
 
-  if (!mounted) {
-    return <>{children}</>;
-  }
-
+  // Always wrap in Provider so t() never returns the raw key
   return (
     <I18nContext.Provider value={{ locale, setLocale, t }}>
       {children}
