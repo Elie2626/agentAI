@@ -59,6 +59,36 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.85,
     },
     {
+      url: `${BASE}/blog`,
+      lastModified: new Date("2026-06-04"),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${BASE}/blog/integrer-chatbot-site-web`,
+      lastModified: new Date("2026-06-04"),
+      changeFrequency: "monthly",
+      priority: 0.95,
+    },
+    {
+      url: `${BASE}/blog/chatbot-wordpress`,
+      lastModified: new Date("2026-06-04"),
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    {
+      url: `${BASE}/blog/chatbot-shopify`,
+      lastModified: new Date("2026-06-04"),
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    {
+      url: `${BASE}/blog/chatbot-html`,
+      lastModified: new Date("2026-06-04"),
+      changeFrequency: "monthly",
+      priority: 0.85,
+    },
+    {
       url: `${BASE}/affiliation`,
       lastModified: new Date("2026-06-02"),
       changeFrequency: "monthly",
