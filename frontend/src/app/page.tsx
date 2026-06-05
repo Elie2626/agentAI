@@ -270,24 +270,45 @@ export default function LandingPage() {
 
       
 
-      {/* ── Social proof bar ── */}
-      <section className="border-y bg-muted/30 px-4 py-6 sm:px-6 lg:px-8">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-8 sm:gap-12">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Users className="h-4 w-4 text-primary" />
-            <span><strong className="text-foreground">500+</strong> {t("social_chatbots")}</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Building2 className="h-4 w-4 text-primary" />
-            <span><strong className="text-foreground">200+</strong> {t("social_companies")}</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <MessageSquare className="h-4 w-4 text-primary" />
-            <span><strong className="text-foreground">50K+</strong> {t("social_conversations")}</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Shield className="h-4 w-4 text-primary" />
-            <span><strong className="text-foreground">RGPD</strong> {t("social_gdpr")}</span>
+      {/* ── Social proof marquee ── */}
+      <section className="border-y bg-muted/30 py-4 overflow-hidden">
+        <div className="flex">
+          <div className="marquee-track flex shrink-0 items-center gap-14">
+            {[0, 1].map((dupe) => (
+              <React.Fragment key={dupe}>
+                {/* ★ Avis */}
+                <div className="flex shrink-0 items-center gap-2 text-sm text-muted-foreground">
+                  <span className="text-base leading-none tracking-tight text-amber-400">★★★★★</span>
+                  <span><strong className="text-foreground">1 500</strong> avis satisfaits</span>
+                </div>
+                {/* Séparateur */}
+                <span className="shrink-0 text-muted-foreground/30 text-lg">·</span>
+                {/* Chatbots */}
+                <div className="flex shrink-0 items-center gap-2 text-sm text-muted-foreground">
+                  <Users className="h-4 w-4 shrink-0 text-primary" />
+                  <span><strong className="text-foreground">500+</strong> chatbots créés</span>
+                </div>
+                <span className="shrink-0 text-muted-foreground/30 text-lg">·</span>
+                {/* Entreprises */}
+                <div className="flex shrink-0 items-center gap-2 text-sm text-muted-foreground">
+                  <Building2 className="h-4 w-4 shrink-0 text-primary" />
+                  <span><strong className="text-foreground">200+</strong> entreprises</span>
+                </div>
+                <span className="shrink-0 text-muted-foreground/30 text-lg">·</span>
+                {/* Conversations */}
+                <div className="flex shrink-0 items-center gap-2 text-sm text-muted-foreground">
+                  <MessageSquare className="h-4 w-4 shrink-0 text-primary" />
+                  <span><strong className="text-foreground">50K+</strong> conversations/mois</span>
+                </div>
+                <span className="shrink-0 text-muted-foreground/30 text-lg">·</span>
+                {/* RGPD */}
+                <div className="flex shrink-0 items-center gap-2 text-sm text-muted-foreground">
+                  <Shield className="h-4 w-4 shrink-0 text-primary" />
+                  <span><strong className="text-foreground">RGPD</strong> conforme</span>
+                </div>
+                <span className="shrink-0 text-muted-foreground/30 text-lg">·</span>
+              </React.Fragment>
+            ))}
           </div>
         </div>
       </section>
@@ -686,8 +707,9 @@ export default function LandingPage() {
         </div>
       </footer>
 
-      {/* ── Scroll animation styles ── */}
+      {/* ── Animations ── */}
       <style jsx global>{`
+        /* Reveal on scroll */
         .reveal-section {
           opacity: 0;
           transform: translateY(24px);
@@ -697,11 +719,25 @@ export default function LandingPage() {
           opacity: 1;
           transform: translateY(0);
         }
+
+        /* Social proof marquee */
+        .marquee-track {
+          animation: marquee 28s linear infinite;
+          will-change: transform;
+        }
+        @keyframes marquee {
+          from { transform: translateX(0); }
+          to   { transform: translateX(-50%); }
+        }
+
         @media (prefers-reduced-motion: reduce) {
           .reveal-section {
             opacity: 1;
             transform: none;
             transition: none;
+          }
+          .marquee-track {
+            animation: none;
           }
         }
       `}</style>
