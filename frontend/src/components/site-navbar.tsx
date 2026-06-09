@@ -6,6 +6,8 @@ import { Bot, ArrowRight, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const NAV_LINKS = [
+  { label: "Fonctionnalités", href: "/#features" },
+  { label: "Tarifs", href: "/#pricing" },
   { label: "Blog", href: "/blog" },
   { label: "Affiliation", href: "/affiliation" },
 ];
