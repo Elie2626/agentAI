@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Bot, ArrowRight, CheckCircle2, TrendingUp, Users, Euro, Share2, Zap, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SiteNavbar } from "@/components/site-navbar";
 
 export const metadata: Metadata = {
   title: "Programme d'affiliation — Gagnez 10% de commission | botexpress",
@@ -71,27 +72,7 @@ export default function AffiliationPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* Nav */}
-      <nav className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-lg">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-              <Bot className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-bold">botexpress</span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" asChild className="hidden sm:inline-flex">
-              <Link href="/auth/login">Se connecter</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/auth/register">
-                Rejoindre le programme <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <SiteNavbar ctaLabel="Rejoindre" />
 
       <main>
         {/* Hero */}
@@ -174,26 +155,26 @@ export default function AffiliationPage() {
             <p className="mb-10 text-center text-muted-foreground">
               10% du premier mois payé par chaque filleul
             </p>
-            <div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
-              <table className="w-full text-sm">
+            <div className="overflow-x-auto rounded-2xl border bg-card shadow-sm">
+              <table className="w-full min-w-[360px] text-sm">
                 <thead className="border-b bg-muted/50">
                   <tr>
-                    <th className="px-6 py-4 text-left font-semibold">Plan souscrit</th>
-                    <th className="px-6 py-4 text-center font-semibold">Prix/mois</th>
-                    <th className="px-6 py-4 text-right font-semibold text-primary">Votre commission</th>
+                    <th className="px-4 py-3 text-left font-semibold sm:px-6 sm:py-4">Plan souscrit</th>
+                    <th className="px-4 py-3 text-center font-semibold sm:px-6 sm:py-4">Prix/mois</th>
+                    <th className="px-4 py-3 text-right font-semibold text-primary sm:px-6 sm:py-4">Commission</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
                   {PLANS.map((plan) => (
                     <tr key={plan.name} className="hover:bg-muted/20 transition-colors">
-                      <td className="px-6 py-4 font-medium">{plan.name}</td>
-                      <td className="px-6 py-4 text-center text-muted-foreground">{plan.price}€</td>
-                      <td className="px-6 py-4 text-right font-bold text-primary">+{plan.commission.toFixed(2)}€</td>
+                      <td className="px-4 py-3 font-medium sm:px-6 sm:py-4">{plan.name}</td>
+                      <td className="px-4 py-3 text-center text-muted-foreground sm:px-6 sm:py-4">{plan.price}€</td>
+                      <td className="px-4 py-3 text-right font-bold text-primary sm:px-6 sm:py-4">+{plan.commission.toFixed(2)}€</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-              <div className="border-t bg-primary/5 px-6 py-4 text-sm text-muted-foreground">
+              <div className="border-t bg-primary/5 px-4 py-3 text-sm text-muted-foreground sm:px-6 sm:py-4">
                 <strong className="text-foreground">Exemple :</strong> 5 filleuls sur le plan Pro = <strong className="text-primary">39,50€/mois</strong> de commissions.
               </div>
             </div>

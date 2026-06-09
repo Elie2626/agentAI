@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Bot, ArrowRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SiteNavbar } from "@/components/site-navbar";
 
 interface BlogPostLayoutProps {
   children: React.ReactNode;
@@ -13,25 +14,7 @@ interface BlogPostLayoutProps {
 export function BlogPostLayout({ children, title, description, date = "2026", readTime = "5 min" }: BlogPostLayoutProps) {
   return (
     <div className="min-h-dvh bg-background text-foreground">
-      {/* Nav */}
-      <nav className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-lg">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-              <Bot className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <span className="text-xl font-bold">botexpress</span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" asChild className="hidden sm:inline-flex">
-              <Link href="/auth/login">Connexion</Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link href="/auth/register">Essai gratuit <ArrowRight className="h-4 w-4" /></Link>
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <SiteNavbar />
 
       {/* Article */}
       <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
@@ -65,7 +48,7 @@ export function BlogPostLayout({ children, title, description, date = "2026", re
           prose-li:text-muted-foreground
           prose-strong:text-foreground
           prose-code:rounded prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:text-sm prose-code:font-mono prose-code:text-foreground prose-code:before:content-none prose-code:after:content-none
-          prose-pre:rounded-xl prose-pre:border prose-pre:bg-muted/50
+          prose-pre:rounded-xl prose-pre:border prose-pre:bg-muted/50 prose-pre:overflow-x-auto
           prose-a:text-primary prose-a:no-underline hover:prose-a:underline
         ">
           {children}

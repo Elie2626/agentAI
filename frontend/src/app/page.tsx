@@ -32,6 +32,8 @@ import {
   CheckCircle2,
   Download,
   Copy,
+  Menu,
+  X,
 } from "lucide-react";
 
 /* ───────── DATA ───────── */
@@ -113,6 +115,7 @@ export default function LandingPage() {
   const { isAuthenticated } = useAuth();
   const { t } = useT();
   const [billingCycle, setBillingCycle] = React.useState<"monthly" | "annual">("monthly");
+  const [mobileOpen, setMobileOpen] = React.useState(false);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -180,18 +183,50 @@ export default function LandingPage() {
             <Link href="/blog" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Blog</Link>
             <Link href="/affiliation" className="text-sm text-muted-foreground transition-colors hover:text-foreground">Affiliation</Link>
           </div>
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2">
             <ThemeToggle />
             {isAuthenticated ? (
               <Button asChild size="sm"><Link href="/dashboard">{t("nav_dashboard")} <ArrowRight className="h-4 w-4" /></Link></Button>
             ) : (
               <>
-                <Button variant="ghost" asChild className="hidden sm:inline-flex"><Link href="/auth/login">{t("nav_login")}</Link></Button>
-                <Button asChild size="sm"><Link href="/auth/register"><span className="sm:hidden">S'inscrire</span><span className="hidden sm:inline">{t("nav_register")}</span> <ArrowRight className="h-4 w-4" /></Link></Button>
+                <Button variant="ghost" asChild className="hidden md:inline-flex"><Link href="/auth/login">{t("nav_login")}</Link></Button>
+                <Button asChild size="sm" className="hidden md:inline-flex"><Link href="/auth/register">{t("nav_register")} <ArrowRight className="h-4 w-4" /></Link></Button>
               </>
             )}
+            {/* Hamburger — mobile only */}
+            <button
+              aria-label={mobileOpen ? "Fermer le menu" : "Ouvrir le menu"}
+              aria-expanded={mobileOpen}
+              className="flex h-9 w-9 items-center justify-center rounded-lg border bg-background transition-colors hover:bg-muted md:hidden"
+              onClick={() => setMobileOpen((v) => !v)}
+            >
+              {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            </button>
           </div>
         </div>
+
+        {/* Mobile drawer */}
+        {mobileOpen && (
+          <div className="border-t bg-background md:hidden">
+            <div className="mx-auto flex max-w-7xl flex-col gap-1 px-4 py-3">
+              <a href="#features" className="rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-muted" onClick={() => setMobileOpen(false)}>{t("nav_features")}</a>
+              <a href="#pricing" className="rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-muted" onClick={() => setMobileOpen(false)}>{t("nav_pricing")}</a>
+              <a href="#faq" className="rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-muted" onClick={() => setMobileOpen(false)}>{t("nav_faq")}</a>
+              <Link href="/blog" className="rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-muted" onClick={() => setMobileOpen(false)}>Blog</Link>
+              <Link href="/affiliation" className="rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-muted" onClick={() => setMobileOpen(false)}>Affiliation</Link>
+              {!isAuthenticated && (
+                <div className="mt-3 grid grid-cols-2 gap-2 border-t pt-3">
+                  <Button variant="outline" asChild className="w-full">
+                    <Link href="/auth/login" onClick={() => setMobileOpen(false)}>{t("nav_login")}</Link>
+                  </Button>
+                  <Button asChild className="w-full">
+                    <Link href="/auth/register" onClick={() => setMobileOpen(false)}>S&apos;inscrire <ArrowRight className="h-4 w-4" /></Link>
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* ── Hero + Demo ── */}
